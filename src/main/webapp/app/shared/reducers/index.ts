@@ -11,6 +11,22 @@ import activate, { ActivateState } from 'app/modules/account/activate/activate.r
 import password, { PasswordState } from 'app/modules/account/password/password.reducer';
 import settings, { SettingsState } from 'app/modules/account/settings/settings.reducer';
 import passwordReset, { PasswordResetState } from 'app/modules/account/password-reset/password-reset.reducer';
+// prettier-ignore
+import points, {
+  PointsState
+} from 'app/entities/points/points.reducer';
+// prettier-ignore
+import weigth, {
+  WeigthState
+} from 'app/entities/weigth/weigth.reducer';
+// prettier-ignore
+import bloodPressure, {
+  BloodPressureState
+} from 'app/entities/blood-pressure/blood-pressure.reducer';
+// prettier-ignore
+import preferences, {
+  PreferencesState
+} from 'app/entities/preferences/preferences.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 export interface IRootState {
@@ -23,6 +39,10 @@ export interface IRootState {
   readonly passwordReset: PasswordResetState;
   readonly password: PasswordState;
   readonly settings: SettingsState;
+  readonly points: PointsState;
+  readonly weigth: WeigthState;
+  readonly bloodPressure: BloodPressureState;
+  readonly preferences: PreferencesState;
   /* jhipster-needle-add-reducer-type - JHipster will add reducer type here */
   readonly loadingBar: any;
 }
@@ -37,6 +57,10 @@ const rootReducer = combineReducers<IRootState>({
   passwordReset,
   password,
   settings,
+  points,
+  weigth,
+  bloodPressure,
+  preferences,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
   loadingBar
 });
