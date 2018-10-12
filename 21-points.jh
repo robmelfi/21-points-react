@@ -1,0 +1,45 @@
+
+entity Points {
+	date LocalDate required
+    excercise Integer
+    meals Integer
+    alcohol Integer
+    notes String maxlength(140)
+}
+
+entity Weigth {
+	timestamp ZonedDateTime required
+    weight Double required
+}
+
+entity BloodPressure {
+	timestamp ZonedDateTime required
+    systolic Integer required
+    diastolic Integer required
+}
+
+enum Units {
+    KG, LB
+}
+
+entity Preferences {
+	weeklyGoal Integer required min(10) max(21)
+    weightUnits Units required
+}
+
+relationship OneToOne {
+	Preferences { user(login) } to User
+}
+
+relationship ManyToOne {
+	Points { user(login) required } to User
+    Weigth { user(login) required } to User
+    BloodPressure { user(login) required } to User
+}
+
+dto * with mapstruct
+service * with serviceClass
+paginate Points with pagination
+paginate BloodPressure, Weigth with infinite-scroll
+
+
