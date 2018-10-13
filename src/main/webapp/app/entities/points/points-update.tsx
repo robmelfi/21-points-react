@@ -1,3 +1,5 @@
+import './point.scss';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
@@ -44,6 +46,9 @@ export class PointsUpdate extends React.Component<IPointsUpdateProps, IPointsUpd
 
   saveEntity = (event, errors, values) => {
     if (errors.length === 0) {
+      values.excercise ? values.excercise = 1 : values.excercise = 0;
+      values.meals ? values.meals = 1 : values.meals = 0;
+      values.alcohol ? values.alcohol = 1 : values.alcohol = 0;
       const { pointsEntity } = this.props;
       const entity = {
         ...pointsEntity,
@@ -100,23 +105,17 @@ export class PointsUpdate extends React.Component<IPointsUpdateProps, IPointsUpd
                     }}
                   />
                 </AvGroup>
-                <AvGroup>
-                  <Label id="excerciseLabel" for="excercise">
-                    Excercise
-                  </Label>
-                  <AvField id="points-excercise" type="string" className="form-control" name="excercise" />
+                <AvGroup check>
+                  <AvInput id="points-excercise" type="checkbox" name="excercise" />
+                  <Label check for="excercise"> Excercise</Label>
                 </AvGroup>
-                <AvGroup>
-                  <Label id="mealsLabel" for="meals">
-                    Meals
-                  </Label>
-                  <AvField id="points-meals" type="string" className="form-control" name="meals" />
+                <AvGroup check>
+                  <AvInput id="points-meals" type="checkbox" name="meals" />
+                  <Label check for="meals"> Meaks</Label>
                 </AvGroup>
-                <AvGroup>
-                  <Label id="alcoholLabel" for="alcohol">
-                    Alcohol
-                  </Label>
-                  <AvField id="points-alcohol" type="string" className="form-control" name="alcohol" />
+                <AvGroup check>
+                  <AvInput id="points-alcohol" type="checkbox" name="alcohol" />
+                  <Label check for="alcohol"> Alcohol</Label>
                 </AvGroup>
                 <AvGroup>
                   <Label id="notesLabel" for="notes">

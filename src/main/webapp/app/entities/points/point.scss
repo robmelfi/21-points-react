@@ -1,0 +1,11 @@
+.truncate {
+  width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+
+  &.cal-day-notes {
+    width: 150px;
+  }
+}

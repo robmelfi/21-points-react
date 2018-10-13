@@ -1,7 +1,9 @@
+import './point.scss';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, InputGroup, Col, Row, Table } from 'reactstrap';
+import { Button, InputGroup, Col, Row, Table, Tooltip, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
 import {
@@ -14,6 +16,11 @@ import {
   JhiPagination
 } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
+library.add(faCheck);
+library.add(faTimes);
 
 import { IRootState } from 'app/shared/reducers';
 import { getSearchEntities, getEntities } from './points.reducer';
@@ -26,11 +33,15 @@ export interface IPointsProps extends StateProps, DispatchProps, RouteComponentP
 
 export interface IPointsState extends IPaginationBaseState {
   search: string;
+  tooltipOpen: boolean;
+  popoverOpen: boolean;
 }
 
 export class Points extends React.Component<IPointsProps, IPointsState> {
   state: IPointsState = {
     search: '',
+    tooltipOpen: false,
+    popoverOpen: false,
     ...getSortState(this.props.location, ITEMS_PER_PAGE)
   };
 
@@ -43,6 +54,18 @@ export class Points extends React.Component<IPointsProps, IPointsState> {
       this.props.getSearchEntities(this.state.search);
     }
   };
+
+  toggleTooltip = () => {
+    this.setState({
+      tooltipOpen: !this.state.tooltipOpen
+    });
+  };
+
+  togglePopover = () => {
+    this.setState({
+      popoverOpen: !this.state.popoverOpen
+    });
+  }
 
   clear = () => {
     this.props.getEntities();
@@ -81,22 +104,30 @@ export class Points extends React.Component<IPointsProps, IPointsState> {
       <div>
         <h2 id="points-heading">
           Points
-          <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
-            <FontAwesomeIcon icon="plus" />&nbsp; Create new Points
-          </Link>
         </h2>
         <Row>
-          <Col sm="12">
+          <Col sm="8">
+            <h2 id="points-heading">
+              Daily Points
+            </h2>
+          </Col>
+          <Col sm="4">
             <AvForm onSubmit={this.search}>
               <AvGroup>
-                <InputGroup>
+                <InputGroup className="w-100 mr-1">
                   <AvInput type="text" name="search" value={this.state.search} onChange={this.handleSearch} placeholder="Search" />
                   <Button className="input-group-addon">
-                    <FontAwesomeIcon icon="search" />
-                  </Button>
+                    <FontAwesomeIcon icon="check" />
+                  </Button>&nbsp;
                   <Button type="reset" className="input-group-addon" onClick={this.clear}>
                     <FontAwesomeIcon icon="trash" />
-                  </Button>
+                  </Button>&nbsp;
+                  <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
+                    <FontAwesomeIcon icon="plus" />
+                  </Link>
+                  <Tooltip placement="top" isOpen={this.state.tooltipOpen} target="jh-create-entity" toggle={this.toggleTooltip}>
+                    Add Points
+                  </Tooltip>
                 </InputGroup>
               </AvGroup>
             </AvForm>
@@ -141,10 +172,29 @@ export class Points extends React.Component<IPointsProps, IPointsState> {
                   <td>
                     <TextFormat type="date" value={points.date} format={APP_LOCAL_DATE_FORMAT} />
                   </td>
-                  <td>{points.excercise}</td>
-                  <td>{points.meals}</td>
-                  <td>{points.alcohol}</td>
-                  <td>{points.notes}</td>
+                  <td className="text-center">
+                    { points.excercise ?
+                      <i><FontAwesomeIcon icon={faCheck} className="text-success"/></i>
+                      : <i><FontAwesomeIcon icon={faTimes} className="text-danger"/></i> }
+                  </td>
+                  <td className="text-center">
+                    { points.meals ?
+                      <i><FontAwesomeIcon icon={faCheck} className="text-success"/></i>
+                      : <i><FontAwesomeIcon icon={faTimes} className="text-danger"/></i> }
+                  </td>
+                  <td className="text-center">
+                    { points.alcohol ?
+                      <i><FontAwesomeIcon icon={faCheck} className="text-success"/></i>
+                      : <i><FontAwesomeIcon icon={faTimes} className="text-danger"/></i> }
+                  </td>
+                  <td>
+                    <div>
+                      <div className="truncate" id="Popover1" onClick={this.togglePopover}>{points.notes}</div>
+                      <Popover placement="right" isOpen={this.state.popoverOpen} target="Popover1" toggle={this.togglePopover}>
+                        <PopoverBody>{points.notes}</PopoverBody>
+                      </Popover>
+                    </div>
+                  </td>
                   <td>{points.userLogin ? points.userLogin : ''}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
