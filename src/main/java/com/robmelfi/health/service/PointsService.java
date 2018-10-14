@@ -1,8 +1,12 @@
 package com.robmelfi.health.service;
 
 import com.robmelfi.health.domain.Points;
+import com.robmelfi.health.domain.User;
 import com.robmelfi.health.repository.PointsRepository;
+import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.search.PointsSearchRepository;
+import com.robmelfi.health.security.AuthoritiesConstants;
+import com.robmelfi.health.security.SecurityUtils;
 import com.robmelfi.health.service.dto.PointsDTO;
 import com.robmelfi.health.service.mapper.PointsMapper;
 import org.slf4j.Logger;
@@ -32,10 +36,13 @@ public class PointsService {
 
     private final PointsSearchRepository pointsSearchRepository;
 
-    public PointsService(PointsRepository pointsRepository, PointsMapper pointsMapper, PointsSearchRepository pointsSearchRepository) {
+    private final UserRepository userRepository;
+
+    public PointsService(PointsRepository pointsRepository, PointsMapper pointsMapper, PointsSearchRepository pointsSearchRepository, UserRepository userRepository) {
         this.pointsRepository = pointsRepository;
         this.pointsMapper = pointsMapper;
         this.pointsSearchRepository = pointsSearchRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -48,6 +55,10 @@ public class PointsService {
         log.debug("Request to save Points : {}", pointsDTO);
 
         Points points = pointsMapper.toEntity(pointsDTO);
+        if (!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
+            points.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get());
+        }
         points = pointsRepository.save(points);
         PointsDTO result = pointsMapper.toDto(points);
         pointsSearchRepository.save(points);
