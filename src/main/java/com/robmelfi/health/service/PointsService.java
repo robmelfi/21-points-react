@@ -74,8 +74,11 @@ public class PointsService {
     @Transactional(readOnly = true)
     public Page<PointsDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Points");
-        return pointsRepository.findAll(pageable)
-            .map(pointsMapper::toDto);
+        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            return pointsRepository.findAllByOrderByDateDesc(pageable).map(pointsMapper::toDto);
+        } else {
+            return pointsRepository.findByUserIsCurrentUser(pageable).map(pointsMapper::toDto);
+        }
     }
 
 
