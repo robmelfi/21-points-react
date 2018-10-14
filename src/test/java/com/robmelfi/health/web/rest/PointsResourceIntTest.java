@@ -5,6 +5,7 @@ import com.robmelfi.health.TwentyOnePointsReactApp;
 import com.robmelfi.health.domain.Points;
 import com.robmelfi.health.domain.User;
 import com.robmelfi.health.repository.PointsRepository;
+import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.search.PointsSearchRepository;
 import com.robmelfi.health.service.PointsService;
 import com.robmelfi.health.service.dto.PointsDTO;
@@ -26,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -39,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -74,6 +78,9 @@ public class PointsResourceIntTest {
     
     @Autowired
     private PointsService pointsService;
+
+    @Autowired
+    private WebApplicationContext context;
 
     /**
      * This repository is mocked in the com.robmelfi.health.repository.search test package.
@@ -141,9 +148,16 @@ public class PointsResourceIntTest {
     public void createPoints() throws Exception {
         int databaseSizeBeforeCreate = pointsRepository.findAll().size();
 
+        // Create security-aware mockMvc
+        restPointsMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Create the Points
         PointsDTO pointsDTO = pointsMapper.toDto(points);
         restPointsMockMvc.perform(post("/api/points")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(pointsDTO)))
             .andExpect(status().isCreated());
@@ -256,6 +270,12 @@ public class PointsResourceIntTest {
 
         int databaseSizeBeforeUpdate = pointsRepository.findAll().size();
 
+        // Create security-aware mockMvc
+        restPointsMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Update the points
         Points updatedPoints = pointsRepository.findById(points.getId()).get();
         // Disconnect from session so that the updates on updatedPoints are not directly saved in db
@@ -269,6 +289,7 @@ public class PointsResourceIntTest {
         PointsDTO pointsDTO = pointsMapper.toDto(updatedPoints);
 
         restPointsMockMvc.perform(put("/api/points")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(pointsDTO)))
             .andExpect(status().isOk());
