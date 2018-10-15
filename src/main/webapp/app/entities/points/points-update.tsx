@@ -70,6 +70,10 @@ export class PointsUpdate extends React.Component<IPointsUpdateProps, IPointsUpd
     this.props.history.push('/entity/points');
   };
 
+  handleBack = () => {
+    this.props.history.goBack();
+  };
+
   render() {
     const { pointsEntity, users, loading, updating, isAdmin } = this.props;
     const { isNew } = this.state;
@@ -146,7 +150,7 @@ export class PointsUpdate extends React.Component<IPointsUpdateProps, IPointsUpd
                     </AvInput>
                   </AvGroup>
                 }
-                <Button tag={Link} id="cancel-save" to="/entity/points" replace color="info">
+                <Button id="cancel-save" color="info" onClick={this.handleBack}>
                   <FontAwesomeIcon icon="arrow-left" />&nbsp;
                   <span className="d-none d-md-inline">Back</span>
                 </Button>
@@ -168,7 +172,7 @@ const mapStateToProps = (storeState: IRootState) => ({
   pointsEntity: storeState.points.entity,
   loading: storeState.points.loading,
   updating: storeState.points.updating,
-  isAdmin: hasAnyAuthority(storeState.authentication.account.authorities, [AUTHORITIES.ADMIN]),
+  isAdmin: hasAnyAuthority(storeState.authentication.account.authorities, [AUTHORITIES.ADMIN])
 });
 
 const mapDispatchToProps = {
