@@ -8,6 +8,7 @@ import com.robmelfi.health.repository.search.PointsSearchRepository;
 import com.robmelfi.health.security.AuthoritiesConstants;
 import com.robmelfi.health.security.SecurityUtils;
 import com.robmelfi.health.service.dto.PointsDTO;
+import com.robmelfi.health.service.dto.PointsPerWeekDTO;
 import com.robmelfi.health.service.mapper.PointsMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -93,6 +97,33 @@ public class PointsService {
         log.debug("Request to get Points : {}", id);
         return pointsRepository.findById(id)
             .map(pointsMapper::toDto);
+    }
+
+    /**
+     * Get all the points for the current week.
+     */
+
+    @Transactional(readOnly = true)
+    public PointsPerWeekDTO getPointsThisWeek() {
+        // Get current date
+        LocalDate now = LocalDate.now();
+        // Get first day of week
+        LocalDate startOfWeek = now.with(DayOfWeek.MONDAY);
+        // Get last day of week
+        LocalDate endOfWeek = now.with(DayOfWeek.SUNDAY);
+        log.debug("Looking for points between: {} and {}", startOfWeek, endOfWeek);
+
+        List<Points> points = pointsRepository.findAllByDateBetweenAndUserLogin(startOfWeek, endOfWeek, SecurityUtils.getCurrentUserLogin().get());
+        return  calculatePoints(startOfWeek, points);
+    }
+
+    private PointsPerWeekDTO calculatePoints(LocalDate startOfWeek, List<Points> points) {
+        Integer numPoints = points.stream()
+            .mapToInt(p -> p.getExcercise() + p.getMeals() + p.getAlcohol())
+            .sum();
+
+        PointsPerWeekDTO count = new PointsPerWeekDTO(startOfWeek, numPoints);
+        return count;
     }
 
     /**

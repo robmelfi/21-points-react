@@ -2,6 +2,7 @@ package com.robmelfi.health.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.robmelfi.health.service.PointsService;
+import com.robmelfi.health.service.dto.PointsPerWeekDTO;
 import com.robmelfi.health.web.rest.errors.BadRequestAlertException;
 import com.robmelfi.health.web.rest.util.HeaderUtil;
 import com.robmelfi.health.web.rest.util.PaginationUtil;
@@ -22,9 +23,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing Points.
@@ -112,6 +110,18 @@ public class PointsResource {
         log.debug("REST request to get Points : {}", id);
         Optional<PointsDTO> pointsDTO = pointsService.findOne(id);
         return ResponseUtil.wrapOrNotFound(pointsDTO);
+    }
+
+    /**
+     * GET /points: get all the points for the current week.
+     */
+
+    @GetMapping("/points-this-week")
+    @Timed
+    public PointsPerWeekDTO getPointsThisWeek() {
+        log.debug("REST request to get points this week");
+
+        return pointsService.getPointsThisWeek();
     }
 
     /**
