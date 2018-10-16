@@ -9,6 +9,9 @@ import { Row, Col, Alert, Progress } from 'reactstrap';
 import { IRootState } from 'app/shared/reducers';
 import { getSession } from 'app/shared/reducers/authentication';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import PointsHome from 'app/entities/points/points-home';
+import BloodPressureHome from 'app/entities/blood-pressure/blood-pressure-home';
+import WeigthHome from 'app/entities/weigth/weigth-home';
 
 export interface IHomeProp extends StateProps, DispatchProps {}
 
@@ -37,59 +40,9 @@ export class Home extends React.Component<IHomeProp> {
           <p className="lead"><span>21-Points Health is here to track your health and improve your life. 😊</span></p>
           {account && account.login ? (
             <div>
-              <Row>
-                <Col xs="8">
-                  <h5 className="mt-1 d-none d-sm-inline">Points for the week of {'{dynamic content}'}</h5>
-                  <h6 className="mt-1 d-sm-none">Points for {'{dynamic content}'}</h6>
-                </Col>
-                <Col xs="4" className="text-right">
-                  <Link to={`entity/points/new`} className="btn btn-primary m-0 mb-1 text-white d-none d-sm-inline">
-                    <FontAwesomeIcon icon="plus" />&nbsp;Points
-                  </Link>
-                  <Link to={`entity/points/new`} className="btn btn-primary m-0 mb-1 text-white d-sm-none">
-                    <FontAwesomeIcon icon="plus" />
-                  </Link>
-                </Col>
-              </Row>
-              <Row className="mt-2">
-                <Col xs="12">
-                  <Progress striped value="25">3 / Goal: 10</Progress>
-                </Col>
-              </Row>
-              <Row className="mt-4">
-                <Col xs="6" className="text-nowrap">
-                  <h4 className="mt-1 d-none d-sm-inline">Blood Pressure:</h4>
-                  <h4 className="mt-1 d-sm-none">BP:</h4>
-                </Col>
-                <Col xs="6" className="text-right">
-                  <Link to={`/`} className="btn btn-outline-secondary btn-sm d-none d-sm-inline">
-                    <FontAwesomeIcon icon="plus" />&nbsp;Blood Pressure
-                  </Link>
-                  <Link to={`/`} className="btn btn-outline-secondary btn-sm d-sm-none">
-                    <FontAwesomeIcon icon="plus" />&nbsp;BP
-                  </Link>
-                </Col>
-              </Row>
-              <Row className="mt-1">
-                <Col xs="12" md="11">
-                  Graph
-                </Col>
-              </Row>
-              <Row className="mt-4">
-                <Col xs="6" className="text-nowrap">
-                  <h4 className="mt-1">Weight:</h4>
-                </Col>
-                <Col xs="6" className="text-right">
-                  <Link to={`/`} className="btn btn-outline-secondary btn-sm">
-                    <FontAwesomeIcon icon="plus" />&nbsp;Weight
-                  </Link>
-                </Col>
-              </Row>
-              <Row className="mt-1">
-                <Col xs="12" md="11">
-                  Graph
-                </Col>
-              </Row>
+              <PointsHome/>
+              <BloodPressureHome/>
+              <WeigthHome/>
               { account && <p>You are logged in as user {account.login}</p>}
             </div>
           ) : (
