@@ -20,7 +20,7 @@ export const NavDropdown = props => (
 
 export const BrandIcon = props => (
   <div {...props} className="brand-icon">
-    <img src="content/images/logo-jhipster-react.svg" alt="Logo" />
+    <img src="content/images/logo-21-points.png" alt="Logo" />
   </div>
 );
 
