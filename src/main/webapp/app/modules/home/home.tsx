@@ -19,7 +19,15 @@ export interface IHomeProp extends StateProps, DispatchProps {}
 export class Home extends React.Component<IHomeProp> {
   componentDidMount() {
     this.props.getSession();
-    this.getPointsThisWeek();
+    if (this.props.account && this.props.account.login) {
+      this.getPointsThisWeek();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.pointsThisWeek.length === 0 || this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points) {
+      this.getPointsThisWeek();
+    }
   }
 
   getPointsThisWeek = () => {
