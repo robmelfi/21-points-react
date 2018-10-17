@@ -8,7 +8,7 @@ import { Row, Col, Alert, Progress } from 'reactstrap';
 
 import { IRootState } from 'app/shared/reducers';
 import { getSession } from 'app/shared/reducers/authentication';
-import { getPointsThisWeek } from 'app/entities/points/points.reducer';
+import { getUserWeeklyGoal } from 'app/entities/preferences/preferences.reducer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PointsHome from 'app/entities/points/points-home';
 import BloodPressureHome from 'app/entities/blood-pressure/blood-pressure-home';
@@ -20,7 +20,7 @@ export class Home extends React.Component<IHomeProp> {
   componentDidMount() {
     this.props.getSession();
     if (this.props.account && this.props.account.login) {
-      this.getPointsThisWeek();
+      this.getUserWeeklyGoal();
     }
   }
 
@@ -28,16 +28,16 @@ export class Home extends React.Component<IHomeProp> {
     if (this.props.pointsThisWeek.length === 0 ||
       this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
       this.props.account.login !== prevProps.account.login) {
-      this.getPointsThisWeek();
+      this.getUserWeeklyGoal();
     }
   }
 
-  getPointsThisWeek = () => {
-    this.props.getPointsThisWeek();
+  getUserWeeklyGoal = () => {
+    this.props.getUserWeeklyGoal();
   };
 
   render() {
-    const { account, pointsThisWeek } = this.props;
+    const { account, pointsThisWeek, userWeeklyGoal } = this.props;
     return (
       <Row>
         <Col md="4" className="d-none d-md-inline">
@@ -56,7 +56,7 @@ export class Home extends React.Component<IHomeProp> {
           <p className="lead"><span>21-Points Health is here to track your health and improve your life. 😊</span></p>
           {account && account.login ? (
             <div>
-              <PointsHome pointsThisWeek={pointsThisWeek}/>
+              <PointsHome pointsThisWeek={pointsThisWeek} userWeeklyGoal={userWeeklyGoal}/>
               <BloodPressureHome/>
               <WeigthHome/>
               { account && <p>You are logged in as user {account.login}</p>}
@@ -120,12 +120,13 @@ export class Home extends React.Component<IHomeProp> {
 const mapStateToProps = storeState => ({
   account: storeState.authentication.account,
   isAuthenticated: storeState.authentication.isAuthenticated,
-  pointsThisWeek: storeState.points.pointsThisWeek
+  pointsThisWeek: storeState.points.pointsThisWeek,
+  userWeeklyGoal: storeState.preferences.userWeeklyGoal
 });
 
 const mapDispatchToProps = {
   getSession,
-  getPointsThisWeek
+  getUserWeeklyGoal
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

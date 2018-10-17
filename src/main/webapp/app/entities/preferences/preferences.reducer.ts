@@ -3,6 +3,7 @@ import { ICrudSearchAction, ICrudGetAction, ICrudGetAllAction, ICrudPutAction, I
 
 import { cleanEntity } from 'app/shared/util/entity-utils';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
+import { getPointsThisWeek } from 'app/entities/points/points.reducer';
 
 import { IPreferences, defaultValue } from 'app/shared/model/preferences.model';
 
@@ -10,6 +11,7 @@ export const ACTION_TYPES = {
   SEARCH_PREFERENCES: 'preferences/SEARCH_PREFERENCES',
   FETCH_PREFERENCES_LIST: 'preferences/FETCH_PREFERENCES_LIST',
   FETCH_PREFERENCES: 'preferences/FETCH_PREFERENCES',
+  FETCH_USER_PREFERENCES: 'preferences/FETCH_USER_PREFERENCES',
   CREATE_PREFERENCES: 'preferences/CREATE_PREFERENCES',
   UPDATE_PREFERENCES: 'preferences/UPDATE_PREFERENCES',
   DELETE_PREFERENCES: 'preferences/DELETE_PREFERENCES',
@@ -22,7 +24,8 @@ const initialState = {
   entities: [] as ReadonlyArray<IPreferences>,
   entity: defaultValue,
   updating: false,
-  updateSuccess: false
+  updateSuccess: false,
+  userWeeklyGoal: null
 };
 
 export type PreferencesState = Readonly<typeof initialState>;
@@ -34,6 +37,7 @@ export default (state: PreferencesState = initialState, action): PreferencesStat
     case REQUEST(ACTION_TYPES.SEARCH_PREFERENCES):
     case REQUEST(ACTION_TYPES.FETCH_PREFERENCES_LIST):
     case REQUEST(ACTION_TYPES.FETCH_PREFERENCES):
+    case REQUEST(ACTION_TYPES.FETCH_USER_PREFERENCES):
       return {
         ...state,
         errorMessage: null,
@@ -52,6 +56,7 @@ export default (state: PreferencesState = initialState, action): PreferencesStat
     case FAILURE(ACTION_TYPES.SEARCH_PREFERENCES):
     case FAILURE(ACTION_TYPES.FETCH_PREFERENCES_LIST):
     case FAILURE(ACTION_TYPES.FETCH_PREFERENCES):
+    case FAILURE(ACTION_TYPES.FETCH_USER_PREFERENCES):
     case FAILURE(ACTION_TYPES.CREATE_PREFERENCES):
     case FAILURE(ACTION_TYPES.UPDATE_PREFERENCES):
     case FAILURE(ACTION_TYPES.DELETE_PREFERENCES):
@@ -79,6 +84,12 @@ export default (state: PreferencesState = initialState, action): PreferencesStat
         ...state,
         loading: false,
         entity: action.payload.data
+      };
+    case SUCCESS(ACTION_TYPES.FETCH_USER_PREFERENCES):
+      return {
+        ...state,
+        loading: false,
+        userWeeklyGoal: action.payload.data.weeklyGoal
       };
     case SUCCESS(ACTION_TYPES.CREATE_PREFERENCES):
     case SUCCESS(ACTION_TYPES.UPDATE_PREFERENCES):
@@ -125,6 +136,15 @@ export const getEntity: ICrudGetAction<IPreferences> = id => {
     type: ACTION_TYPES.FETCH_PREFERENCES,
     payload: axios.get<IPreferences>(requestUrl)
   };
+};
+
+export const getUserWeeklyGoal = () => async dispatch => {
+  const requestUrl = `api/my-preferences`;
+  await dispatch({
+    type: ACTION_TYPES.FETCH_USER_PREFERENCES,
+    payload: axios.get(requestUrl)
+  });
+  dispatch(getPointsThisWeek());
 };
 
 export const createEntity: ICrudPutAction<IPreferences> = entity => async dispatch => {
