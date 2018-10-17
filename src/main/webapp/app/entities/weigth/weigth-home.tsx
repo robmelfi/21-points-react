@@ -13,7 +13,7 @@ class WeigthHome extends Component {
             <h4 className="mt-1">Weight:</h4>
           </Col>
           <Col xs="6" className="text-right">
-            <Link to={`/`} className="btn btn-outline-secondary btn-sm">
+            <Link to={`/entity/weigth/new`} className="btn btn-outline-secondary btn-sm">
               <FontAwesomeIcon icon="plus" />&nbsp;Weight
             </Link>
           </Col>

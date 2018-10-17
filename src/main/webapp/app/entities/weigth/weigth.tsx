@@ -2,7 +2,7 @@ import React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, InputGroup, Col, Row, Table } from 'reactstrap';
+import { Button, InputGroup, Col, Row, Table, Tooltip } from 'reactstrap';
 import { AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
 import { ICrudSearchAction, ICrudGetAllAction, TextFormat, getSortState, IPaginationBaseState } from 'react-jhipster';
@@ -19,11 +19,13 @@ export interface IWeigthProps extends StateProps, DispatchProps, RouteComponentP
 
 export interface IWeigthState extends IPaginationBaseState {
   search: string;
+  tooltipOpen: boolean;
 }
 
 export class Weigth extends React.Component<IWeigthProps, IWeigthState> {
   state: IWeigthState = {
     search: '',
+    tooltipOpen: false,
     ...getSortState(this.props.location, ITEMS_PER_PAGE)
   };
 
@@ -41,6 +43,12 @@ export class Weigth extends React.Component<IWeigthProps, IWeigthState> {
     if (this.state.search) {
       this.props.getSearchEntities(this.state.search);
     }
+  };
+
+  toggleTooltip = () => {
+    this.setState({
+      tooltipOpen: !this.state.tooltipOpen
+    });
   };
 
   clear = () => {
@@ -86,24 +94,29 @@ export class Weigth extends React.Component<IWeigthProps, IWeigthState> {
     const { weigthList, match } = this.props;
     return (
       <div>
-        <h2 id="weigth-heading">
-          Weigths
-          <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
-            <FontAwesomeIcon icon="plus" />&nbsp; Create new Weigth
-          </Link>
-        </h2>
         <Row>
-          <Col sm="12">
+          <Col sm="8">
+            <h2 id="weigth-heading">
+              Weigths
+            </h2>
+          </Col>
+          <Col sm="4">
             <AvForm onSubmit={this.search}>
               <AvGroup>
                 <InputGroup>
                   <AvInput type="text" name="search" value={this.state.search} onChange={this.handleSearch} placeholder="Search" />
                   <Button className="input-group-addon">
                     <FontAwesomeIcon icon="search" />
-                  </Button>
+                  </Button>&nbsp;
                   <Button type="reset" className="input-group-addon" onClick={this.clear}>
                     <FontAwesomeIcon icon="trash" />
-                  </Button>
+                  </Button>&nbsp;
+                  <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
+                    <FontAwesomeIcon icon="plus" />
+                  </Link>
+                  <Tooltip placement="top" isOpen={this.state.tooltipOpen} target="jh-create-entity" toggle={this.toggleTooltip}>
+                    Add Weigth
+                  </Tooltip>
                 </InputGroup>
               </AvGroup>
             </AvForm>

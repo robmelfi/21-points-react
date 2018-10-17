@@ -8,6 +8,7 @@ import { ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipste
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
+import moment from 'moment';
 import { IUser } from 'app/shared/model/user.model';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { getEntity, updateEntity, createEntity, reset } from './weigth.reducer';
@@ -15,6 +16,8 @@ import { IWeigth } from 'app/shared/model/weigth.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import { AUTHORITIES } from 'app/config/constants';
 
 export interface IWeigthUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -60,11 +63,11 @@ export class WeigthUpdate extends React.Component<IWeigthUpdateProps, IWeigthUpd
   };
 
   handleClose = () => {
-    this.props.history.push('/entity/weigth');
+    this.props.history.goBack();
   };
 
   render() {
-    const { weigthEntity, users, loading, updating } = this.props;
+    const { weigthEntity, users, loading, updating, isAdmin } = this.props;
     const { isNew } = this.state;
 
     return (
@@ -95,7 +98,7 @@ export class WeigthUpdate extends React.Component<IWeigthUpdateProps, IWeigthUpd
                     type="datetime-local"
                     className="form-control"
                     name="timestamp"
-                    value={isNew ? null : convertDateTimeFromServer(this.props.weigthEntity.timestamp)}
+                    value={isNew ? convertDateTimeFromServer(moment.now()) : convertDateTimeFromServer(this.props.weigthEntity.timestamp)}
                     validate={{
                       required: { value: true, errorMessage: 'This field is required.' }
                     }}
@@ -116,19 +119,21 @@ export class WeigthUpdate extends React.Component<IWeigthUpdateProps, IWeigthUpd
                     }}
                   />
                 </AvGroup>
-                <AvGroup>
-                  <Label for="user.login">User</Label>
-                  <AvInput id="weigth-user" type="select" className="form-control" name="userId">
-                    {users
-                      ? users.map(otherEntity => (
+                {isAdmin &&
+                  <AvGroup>
+                    <Label for="user.login">User</Label>
+                    <AvInput id="weigth-user" type="select" className="form-control" name="userId">
+                      {users
+                        ? users.map(otherEntity => (
                           <option value={otherEntity.id} key={otherEntity.id}>
                             {otherEntity.login}
                           </option>
                         ))
-                      : null}
-                  </AvInput>
-                </AvGroup>
-                <Button tag={Link} id="cancel-save" to="/entity/weigth" replace color="info">
+                        : null}
+                    </AvInput>
+                  </AvGroup>
+                }
+                <Button id="cancel-save" replace color="info" onClick={this.handleClose}>
                   <FontAwesomeIcon icon="arrow-left" />&nbsp;
                   <span className="d-none d-md-inline">Back</span>
                 </Button>
@@ -149,7 +154,8 @@ const mapStateToProps = (storeState: IRootState) => ({
   users: storeState.userManagement.users,
   weigthEntity: storeState.weigth.entity,
   loading: storeState.weigth.loading,
-  updating: storeState.weigth.updating
+  updating: storeState.weigth.updating,
+  isAdmin: hasAnyAuthority(storeState.authentication.account.authorities, [AUTHORITIES.ADMIN])
 });
 
 const mapDispatchToProps = {
