@@ -33,7 +33,8 @@ describe('Entities reducer tests', () => {
     entities: [] as ReadonlyArray<IPreferences>,
     entity: defaultValue,
     updating: false,
-    updateSuccess: false
+    updateSuccess: false,
+    userWeeklyGoal: null
   };
 
   function testInitialState(state) {
