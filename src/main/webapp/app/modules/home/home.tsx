@@ -25,7 +25,9 @@ export class Home extends React.Component<IHomeProp> {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.pointsThisWeek.length === 0 || this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points) {
+    if (this.props.pointsThisWeek.length === 0 ||
+      this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
+      this.props.account.login !== prevProps.account.login) {
       this.getPointsThisWeek();
     }
   }
