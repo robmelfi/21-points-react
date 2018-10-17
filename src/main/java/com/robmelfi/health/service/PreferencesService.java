@@ -3,6 +3,7 @@ package com.robmelfi.health.service;
 import com.robmelfi.health.domain.Preferences;
 import com.robmelfi.health.repository.PreferencesRepository;
 import com.robmelfi.health.repository.search.PreferencesSearchRepository;
+import com.robmelfi.health.security.SecurityUtils;
 import com.robmelfi.health.service.dto.PreferencesDTO;
 import com.robmelfi.health.service.mapper.PreferencesMapper;
 import org.slf4j.Logger;
@@ -81,6 +82,26 @@ public class PreferencesService {
         log.debug("Request to get Preferences : {}", id);
         return preferencesRepository.findById(id)
             .map(preferencesMapper::toDto);
+    }
+
+    /**
+     * Get user preferences.
+     *
+     * @return the user preferences
+     */
+    @Transactional(readOnly = true)
+    public PreferencesDTO getUserPreferences() {
+        String username = SecurityUtils.getCurrentUserLogin().get();
+        log.debug("Request to get User Preferences : {}", username);
+        Optional<Preferences> preferences = preferencesRepository.findOneByUserLogin(username);
+
+        if (preferences.isPresent()) {
+            return preferences.map(preferencesMapper::toDto).get();
+        } else {
+            PreferencesDTO defaultPreferences = new PreferencesDTO();
+            defaultPreferences.setWeeklyGoal(10); // default
+            return defaultPreferences;
+        }
     }
 
     /**

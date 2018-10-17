@@ -3,7 +3,9 @@ package com.robmelfi.health.web.rest;
 import com.robmelfi.health.TwentyOnePointsReactApp;
 
 import com.robmelfi.health.domain.Preferences;
+import com.robmelfi.health.domain.User;
 import com.robmelfi.health.repository.PreferencesRepository;
+import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.search.PreferencesSearchRepository;
 import com.robmelfi.health.service.PreferencesService;
 import com.robmelfi.health.service.dto.PreferencesDTO;
@@ -34,10 +36,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.robmelfi.health.domain.enumeration.Units;
+import org.springframework.web.context.WebApplicationContext;
+
 /**
  * Test class for the PreferencesResource REST controller.
  *
@@ -57,10 +63,16 @@ public class PreferencesResourceIntTest {
     private PreferencesRepository preferencesRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private PreferencesMapper preferencesMapper;
     
     @Autowired
     private PreferencesService preferencesService;
+
+    @Autowired
+    private WebApplicationContext context;
 
     /**
      * This repository is mocked in the com.robmelfi.health.repository.search test package.
@@ -227,6 +239,51 @@ public class PreferencesResourceIntTest {
             .andExpect(jsonPath("$.id").value(preferences.getId().intValue()))
             .andExpect(jsonPath("$.weeklyGoal").value(DEFAULT_WEEKLY_GOAL))
             .andExpect(jsonPath("$.weightUnits").value(DEFAULT_WEIGHT_UNITS.toString()));
+    }
+
+    private void createUserPreferences() {
+        User user = userRepository.findOneByLogin("user").get();
+        // Create preferences
+        Preferences preferences = new Preferences().weeklyGoal(15).weightUnits(Units.KG).user(user);
+        preferencesRepository.saveAndFlush(preferences);
+    }
+
+    @Test
+    @Transactional
+    public void getUserPreferences() throws Exception {
+
+        createUserPreferences();
+
+        // Create security-aware mockMvc
+        restPreferencesMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get the preferences
+        restPreferencesMockMvc.perform(get("/api/my-preferences")
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.weeklyGoal").value(15));
+    }
+
+    @Test
+    @Transactional
+    public void getDefaultUserPreferences() throws Exception {
+
+        // Create security-aware mockMvc
+        restPreferencesMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get the preferences
+        restPreferencesMockMvc.perform(get("/api/my-preferences")
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.weeklyGoal").value(10));
     }
 
     @Test
