@@ -1,8 +1,11 @@
 package com.robmelfi.health.service;
 
 import com.robmelfi.health.domain.Weigth;
+import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.WeigthRepository;
 import com.robmelfi.health.repository.search.WeigthSearchRepository;
+import com.robmelfi.health.security.AuthoritiesConstants;
+import com.robmelfi.health.security.SecurityUtils;
 import com.robmelfi.health.service.dto.WeigthDTO;
 import com.robmelfi.health.service.mapper.WeigthMapper;
 import org.slf4j.Logger;
@@ -32,10 +35,13 @@ public class WeigthService {
 
     private final WeigthSearchRepository weigthSearchRepository;
 
-    public WeigthService(WeigthRepository weigthRepository, WeigthMapper weigthMapper, WeigthSearchRepository weigthSearchRepository) {
+    private final UserRepository userRepository;
+
+    public WeigthService(WeigthRepository weigthRepository, WeigthMapper weigthMapper, WeigthSearchRepository weigthSearchRepository, UserRepository userRepository) {
         this.weigthRepository = weigthRepository;
         this.weigthMapper = weigthMapper;
         this.weigthSearchRepository = weigthSearchRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -48,6 +54,10 @@ public class WeigthService {
         log.debug("Request to save Weigth : {}", weigthDTO);
 
         Weigth weigth = weigthMapper.toEntity(weigthDTO);
+        if (!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
+            weigth.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get());
+        }
         weigth = weigthRepository.save(weigth);
         WeigthDTO result = weigthMapper.toDto(weigth);
         weigthSearchRepository.save(weigth);
@@ -63,8 +73,11 @@ public class WeigthService {
     @Transactional(readOnly = true)
     public Page<WeigthDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Weigths");
-        return weigthRepository.findAll(pageable)
-            .map(weigthMapper::toDto);
+        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            return weigthRepository.findAllByOrderByTimestampDesc(pageable).map(weigthMapper::toDto);
+        } else {
+            return weigthRepository.findByUserIsCurrentUser(pageable).map(weigthMapper::toDto);
+        }
     }
 
 

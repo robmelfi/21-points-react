@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityManager;
 import java.time.Instant;
@@ -42,6 +43,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -68,6 +71,9 @@ public class WeigthResourceIntTest {
     
     @Autowired
     private WeigthService weigthService;
+
+    @Autowired
+    private WebApplicationContext context;
 
     /**
      * This repository is mocked in the com.robmelfi.health.repository.search test package.
@@ -132,9 +138,16 @@ public class WeigthResourceIntTest {
     public void createWeigth() throws Exception {
         int databaseSizeBeforeCreate = weigthRepository.findAll().size();
 
+        // Create security-aware mockMvc
+        restWeigthMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Create the Weigth
         WeigthDTO weigthDTO = weigthMapper.toDto(weigth);
         restWeigthMockMvc.perform(post("/api/weigths")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(weigthDTO)))
             .andExpect(status().isCreated());
@@ -217,8 +230,15 @@ public class WeigthResourceIntTest {
         // Initialize the database
         weigthRepository.saveAndFlush(weigth);
 
+        // Create security-aware mockMvc
+        restWeigthMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Get all the weigthList
-        restWeigthMockMvc.perform(get("/api/weigths?sort=id,desc"))
+        restWeigthMockMvc.perform(get("/api/weigths?sort=id,desc")
+            .with(user("admin").roles("ADMIN")))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(weigth.getId().intValue())))
@@ -257,6 +277,12 @@ public class WeigthResourceIntTest {
 
         int databaseSizeBeforeUpdate = weigthRepository.findAll().size();
 
+        // Create security-aware mockMvc
+        restWeigthMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Update the weigth
         Weigth updatedWeigth = weigthRepository.findById(weigth.getId()).get();
         // Disconnect from session so that the updates on updatedWeigth are not directly saved in db
@@ -267,6 +293,7 @@ public class WeigthResourceIntTest {
         WeigthDTO weigthDTO = weigthMapper.toDto(updatedWeigth);
 
         restWeigthMockMvc.perform(put("/api/weigths")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(weigthDTO)))
             .andExpect(status().isOk());
