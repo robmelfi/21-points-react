@@ -8,6 +8,7 @@ import { ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipste
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
+import moment from 'moment';
 import { IUser } from 'app/shared/model/user.model';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
 import { getEntity, updateEntity, createEntity, reset } from './blood-pressure.reducer';
@@ -15,6 +16,8 @@ import { IBloodPressure } from 'app/shared/model/blood-pressure.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import { AUTHORITIES } from 'app/config/constants';
 
 export interface IBloodPressureUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -60,11 +63,11 @@ export class BloodPressureUpdate extends React.Component<IBloodPressureUpdatePro
   };
 
   handleClose = () => {
-    this.props.history.push('/entity/blood-pressure');
+    this.props.history.goBack();
   };
 
   render() {
-    const { bloodPressureEntity, users, loading, updating } = this.props;
+    const { bloodPressureEntity, users, loading, updating, isAdmin } = this.props;
     const { isNew } = this.state;
 
     return (
@@ -95,7 +98,7 @@ export class BloodPressureUpdate extends React.Component<IBloodPressureUpdatePro
                     type="datetime-local"
                     className="form-control"
                     name="timestamp"
-                    value={isNew ? null : convertDateTimeFromServer(this.props.bloodPressureEntity.timestamp)}
+                    value={isNew ? convertDateTimeFromServer(moment.now()) : convertDateTimeFromServer(this.props.bloodPressureEntity.timestamp)}
                     validate={{
                       required: { value: true, errorMessage: 'This field is required.' }
                     }}
@@ -131,19 +134,21 @@ export class BloodPressureUpdate extends React.Component<IBloodPressureUpdatePro
                     }}
                   />
                 </AvGroup>
-                <AvGroup>
-                  <Label for="user.login">User</Label>
-                  <AvInput id="blood-pressure-user" type="select" className="form-control" name="userId">
-                    {users
-                      ? users.map(otherEntity => (
+                {isAdmin &&
+                  <AvGroup>
+                    <Label for="user.login">User</Label>
+                    <AvInput id="blood-pressure-user" type="select" className="form-control" name="userId">
+                      {users
+                        ? users.map(otherEntity => (
                           <option value={otherEntity.id} key={otherEntity.id}>
                             {otherEntity.login}
                           </option>
                         ))
-                      : null}
-                  </AvInput>
-                </AvGroup>
-                <Button tag={Link} id="cancel-save" to="/entity/blood-pressure" replace color="info">
+                        : null}
+                    </AvInput>
+                  </AvGroup>
+                }
+                <Button id="cancel-save" replace color="info" onClick={this.handleClose}>
                   <FontAwesomeIcon icon="arrow-left" />&nbsp;
                   <span className="d-none d-md-inline">Back</span>
                 </Button>
@@ -164,7 +169,8 @@ const mapStateToProps = (storeState: IRootState) => ({
   users: storeState.userManagement.users,
   bloodPressureEntity: storeState.bloodPressure.entity,
   loading: storeState.bloodPressure.loading,
-  updating: storeState.bloodPressure.updating
+  updating: storeState.bloodPressure.updating,
+  isAdmin: hasAnyAuthority(storeState.authentication.account.authorities, [AUTHORITIES.ADMIN])
 });
 
 const mapDispatchToProps = {

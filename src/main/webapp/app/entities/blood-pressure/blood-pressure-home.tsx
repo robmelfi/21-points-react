@@ -14,10 +14,10 @@ class BloodPressureHome extends Component {
             <h4 className="mt-1 d-sm-none">BP:</h4>
           </Col>
           <Col xs="6" className="text-right">
-            <Link to={`/`} className="btn btn-outline-secondary btn-sm d-none d-sm-inline">
+            <Link to={`/entity/blood-pressure/new`} className="btn btn-outline-secondary btn-sm d-none d-sm-inline">
               <FontAwesomeIcon icon="plus" />&nbsp;Blood Pressure
             </Link>
-            <Link to={`/`} className="btn btn-outline-secondary btn-sm d-sm-none">
+            <Link to={`/entity/blood-pressure/new`} className="btn btn-outline-secondary btn-sm d-sm-none">
               <FontAwesomeIcon icon="plus" />&nbsp;BP
             </Link>
           </Col>
