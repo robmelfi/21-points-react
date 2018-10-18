@@ -11,7 +11,8 @@ import { IRootState } from 'app/shared/reducers';
 import { getSearchEntities, getEntities } from './preferences.reducer';
 import { IPreferences } from 'app/shared/model/preferences.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, AUTHORITIES } from 'app/config/constants';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
 
 export interface IPreferencesProps extends StateProps, DispatchProps, RouteComponentProps<{ url: string }> {}
 
@@ -52,7 +53,33 @@ export class Preferences extends React.Component<IPreferencesProps, IPreferences
   handleSearch = event => this.setState({ search: event.target.value });
 
   render() {
-    const { preferencesList, match } = this.props;
+    const { preferencesList, match, isAdmin } = this.props;
+
+    let createSearchGroup = null;
+
+    if (preferencesList.length === 0 || isAdmin) {
+      createSearchGroup = (
+        <InputGroup>
+          <AvInput type="text" name="search" value={this.state.search} onChange={this.handleSearch}
+                   placeholder="Search"/>
+          <Button className="input-group-addon">
+            <FontAwesomeIcon icon="search"/>
+          </Button>&nbsp;
+          <Button type="reset" className="input-group-addon" onClick={this.clear}>
+            <FontAwesomeIcon icon="trash"/>
+          </Button>&nbsp;
+          <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity"
+                id="jh-create-entity">
+            <FontAwesomeIcon icon="plus"/>
+          </Link>
+          <Tooltip placement="top" isOpen={this.state.tooltipOpen} target="jh-create-entity"
+                   toggle={this.toggleTooltip}>
+            Set Preferences
+          </Tooltip>
+        </InputGroup>
+      );
+    }
+
     return (
       <div>
         <Row>
@@ -64,26 +91,7 @@ export class Preferences extends React.Component<IPreferencesProps, IPreferences
           <Col sm="4">
             <AvForm onSubmit={this.search}>
               <AvGroup>
-                {preferencesList.length === 0 &&
-                  <InputGroup>
-                    <AvInput type="text" name="search" value={this.state.search} onChange={this.handleSearch}
-                             placeholder="Search"/>
-                    <Button className="input-group-addon">
-                      <FontAwesomeIcon icon="search"/>
-                    </Button>&nbsp;
-                    <Button type="reset" className="input-group-addon" onClick={this.clear}>
-                      <FontAwesomeIcon icon="trash"/>
-                    </Button>&nbsp;
-                    <Link to={`${match.url}/new`} className="btn btn-primary float-right jh-create-entity"
-                          id="jh-create-entity">
-                      <FontAwesomeIcon icon="plus"/>
-                    </Link>
-                    <Tooltip placement="top" isOpen={this.state.tooltipOpen} target="jh-create-entity"
-                             toggle={this.toggleTooltip}>
-                      Set Preferences
-                    </Tooltip>
-                  </InputGroup>
-                }
+                { createSearchGroup }
               </AvGroup>
             </AvForm>
           </Col>
@@ -95,6 +103,7 @@ export class Preferences extends React.Component<IPreferencesProps, IPreferences
                 <th>ID</th>
                 <th>Weekly Goal</th>
                 <th>Weight Units</th>
+                <th>{isAdmin ? "User" : null}</th>
                 <th />
               </tr>
             </thead>
@@ -108,6 +117,7 @@ export class Preferences extends React.Component<IPreferencesProps, IPreferences
                   </td>
                   <td>{preferences.weeklyGoal}</td>
                   <td>{preferences.weightUnits}</td>
+                  <td>{preferences.userLogin && isAdmin ? preferences.userLogin : ''}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${preferences.id}`} color="info" size="sm">
@@ -131,8 +141,9 @@ export class Preferences extends React.Component<IPreferencesProps, IPreferences
   }
 }
 
-const mapStateToProps = ({ preferences }: IRootState) => ({
-  preferencesList: preferences.entities
+const mapStateToProps = ({ authentication, preferences }: IRootState) => ({
+  preferencesList: preferences.entities,
+  isAdmin: hasAnyAuthority(authentication.account.authorities, [AUTHORITIES.ADMIN])
 });
 
 const mapDispatchToProps = {

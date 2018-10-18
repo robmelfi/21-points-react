@@ -58,8 +58,12 @@ public class PreferencesService {
         log.debug("Request to save Preferences : {}", preferencesDTO);
 
         Preferences preferences = preferencesMapper.toEntity(preferencesDTO);
-        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null);
-        preferences.setUser(user);
+        //User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null);
+        if (!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
+            preferences.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get());
+        }
+        //preferences.setUser(user);
         preferences = preferencesRepository.save(preferences);
         PreferencesDTO result = preferencesMapper.toDto(preferences);
         preferencesSearchRepository.save(preferences);
