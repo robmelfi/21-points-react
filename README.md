@@ -1,4 +1,4 @@
-# TwentyOnePointsReact
+# 21-Points Health (React Version)
 This application refers to the book [“The JHipster Mini-Book by Matt Raible”](http://www.jhipster-book.com). In this application the examples of the book are made using React instead of Angular.
 This is the [Angular Web App](https://www.21-points.com) 
 
