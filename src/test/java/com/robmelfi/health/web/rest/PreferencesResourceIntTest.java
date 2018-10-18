@@ -132,9 +132,16 @@ public class PreferencesResourceIntTest {
     public void createPreferences() throws Exception {
         int databaseSizeBeforeCreate = preferencesRepository.findAll().size();
 
+        // Create security-aware mockMvc
+        restPreferencesMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Create the Preferences
         PreferencesDTO preferencesDTO = preferencesMapper.toDto(preferences);
         restPreferencesMockMvc.perform(post("/api/preferences")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(preferencesDTO)))
             .andExpect(status().isCreated());
@@ -309,6 +316,12 @@ public class PreferencesResourceIntTest {
 
         int databaseSizeBeforeUpdate = preferencesRepository.findAll().size();
 
+        // Create security-aware mockMvc
+        restPreferencesMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         // Update the preferences
         Preferences updatedPreferences = preferencesRepository.findById(preferences.getId()).get();
         // Disconnect from session so that the updates on updatedPreferences are not directly saved in db
@@ -319,6 +332,7 @@ public class PreferencesResourceIntTest {
         PreferencesDTO preferencesDTO = preferencesMapper.toDto(updatedPreferences);
 
         restPreferencesMockMvc.perform(put("/api/preferences")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(preferencesDTO)))
             .andExpect(status().isOk());
