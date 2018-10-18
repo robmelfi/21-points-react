@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { NavLink as Link } from 'react-router-dom';
 import LoadingBar from 'react-redux-loading-bar';
 
-import { Home, Brand } from './header-components';
+import { Home, Brand, About } from './header-components';
 import { AdminMenu, EntitiesMenu, AccountMenu } from './menus';
 
 export interface IHeaderProps {
@@ -57,6 +57,7 @@ export default class Header extends React.Component<IHeaderProps, IHeaderState> 
               {isAuthenticated && <EntitiesMenu />}
               {isAuthenticated && isAdmin && <AdminMenu showSwagger={isSwaggerEnabled} showDatabase={!isInProduction} />}
               <AccountMenu isAuthenticated={isAuthenticated} />
+              <About />
             </Nav>
           </Collapse>
         </Navbar>

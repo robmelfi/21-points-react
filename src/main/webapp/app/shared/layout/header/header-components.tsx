@@ -2,7 +2,12 @@ import React from 'react';
 
 import { UncontrolledDropdown, DropdownToggle, DropdownMenu, NavItem, NavLink, NavbarBrand } from 'reactstrap';
 import { NavLink as Link } from 'react-router-dom';
+
+import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faStar);
 
 import appConfig from 'app/config/constants';
 
@@ -37,6 +42,15 @@ export const Home = props => (
     <NavLink tag={Link} to="/" className="d-flex align-items-center">
       <FontAwesomeIcon icon="home" />
       <span>Home</span>
+    </NavLink>
+  </NavItem>
+);
+
+export const About = props => (
+  <NavItem>
+    <NavLink tag={Link} to="/about" className="d-flex align-items-center">
+      <FontAwesomeIcon icon={faStar} />
+      <span>About</span>
     </NavLink>
   </NavItem>
 );
