@@ -131,12 +131,9 @@ export class Weigth extends React.Component<IWeigthProps, IWeigthState> {
             threshold={0}
             initialLoad={false}
           >
-            <Table responsive>
+            <Table responsive striped>
               <thead>
                 <tr>
-                  <th className="hand" onClick={this.sort('id')}>
-                    ID <FontAwesomeIcon icon="sort" />
-                  </th>
                   <th className="hand" onClick={this.sort('timestamp')}>
                     Timestamp <FontAwesomeIcon icon="sort" />
                   </th>
@@ -154,11 +151,8 @@ export class Weigth extends React.Component<IWeigthProps, IWeigthState> {
                   <tr key={`entity-${i}`}>
                     <td>
                       <Button tag={Link} to={`${match.url}/${weigth.id}`} color="link" size="sm">
-                        {weigth.id}
+                        <TextFormat type="date" value={weigth.timestamp} format={APP_DATE_FORMAT} />
                       </Button>
-                    </td>
-                    <td>
-                      <TextFormat type="date" value={weigth.timestamp} format={APP_DATE_FORMAT} />
                     </td>
                     <td>{weigth.weight}</td>
                     <td>{weigth.userLogin ? weigth.userLogin : ''}</td>

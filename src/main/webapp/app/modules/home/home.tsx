@@ -19,21 +19,25 @@ export interface IHomeProp extends StateProps, DispatchProps {}
 export class Home extends React.Component<IHomeProp> {
   componentDidMount() {
     this.props.getSession();
-    if (this.props.account && this.props.account.login) {
+    if (this.props.isAuthenticated) {
       this.getUserWeeklyGoal();
       this.props.getEntities();
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.pointsThisWeek.length === 0 ||
-      this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
-      this.props.account.login !== prevProps.account.login) {
-      this.getUserWeeklyGoal();
-    }
-    if (this.props.preferences.length === 0 ||
-      this.props.preferences.length !== prevProps.preferences.length) {
-      this.props.getEntities();
+
+    if (this.props.isAuthenticated) {
+      if (this.props.pointsThisWeek.length === 0 ||
+        this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
+        this.props.account.login !== prevProps.account.login) {
+        this.getUserWeeklyGoal();
+      }
+
+      if (this.props.preferences.length === 0 ||
+        this.props.preferences.length !== prevProps.preferences.length) {
+        this.props.getEntities();
+      }
     }
   }
 
@@ -51,11 +55,11 @@ export class Home extends React.Component<IHomeProp> {
         <Col md="8">
           { account && account.login ? (
             <div>
-              <h2>Welcome, {account.firstName}!</h2>
+              <h1>Welcome, {account.firstName}!</h1>
             </div>
           ) : (
             <div>
-              <h2>Welcome!</h2>
+              <h1>Welcome!</h1>
             </div>
           )}
           <p className="lead"><span>21-Points Health is here to track your health and improve your life. 😊</span></p>
@@ -66,15 +70,17 @@ export class Home extends React.Component<IHomeProp> {
               <WeigthHome/>
               {preferences.length !== 0 &&
                 <Row>
-                  <Col md="12" className="mt-2">
-                    <Button tag={Link} to={`entity/preferences/${preferences[0].id}/edit`} className="float-right"
-                            color="link" size="sm">
-                      <FontAwesomeIcon icon="pencil-alt"/> <span className="d-none d-md-inline">Edit Preferences</span>
-                    </Button>
+                  <Col md="11" xs="12" className="mt-2">
+                    <Link to={`entity/preferences/${preferences[0].id}/edit`} className="float-right">
+                      <span className="d-none d-md-inline">Edit Preferences</span>
+                    </Link>
+                    <Link to={`/`}>
+                      <span className="d-none d-md-inline">View History</span>
+                    </Link>
                   </Col>
                 </Row>
               }
-              { account && <p>You are logged in as user {account.login}</p>}
+              { account && <p className="mt-2">You are logged in as user <em>{account.login}</em></p>}
             </div>
           ) : (
             <div>
@@ -94,7 +100,7 @@ export class Home extends React.Component<IHomeProp> {
                   <span>Learn more</span>
                 </Link>
               </p>
-              <p>If you have any question on JHipster:</p>
+              <p>If you have any questions about the JHipster Mini-Book or 21-Points Health:</p>
               <ul>
                 <li>
                   <a href="http://www.jhipster-book.com" target="_blank" rel="noopener noreferrer">

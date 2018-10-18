@@ -36,7 +36,7 @@ spring:
     autoconfigure:
         exclude: org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
     application:
-        name: TwentyOnePointsReact
+        name: 21-Points Health
     profiles:
         # The commented value for `active` can be replaced with valid Spring profiles to load.
         # Otherwise, it will be filled in by maven when building the WAR file
@@ -88,11 +88,11 @@ jhipster:
         #allow-credentials: true
         #max-age: 1800
     mail:
-        from: TwentyOnePointsReact@localhost
+        from: 21-points@localhost
     swagger:
         default-include-pattern: /api/.*
-        title: TwentyOnePointsReact API
-        description: TwentyOnePointsReact API documentation
+        title: 21-Points Health API
+        description: 21-Points Health API documentation
         version: 0.0.1
         terms-of-service-url:
         contact-name:

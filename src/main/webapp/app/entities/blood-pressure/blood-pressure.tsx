@@ -131,12 +131,9 @@ export class BloodPressure extends React.Component<IBloodPressureProps, IBloodPr
             threshold={0}
             initialLoad={false}
           >
-            <Table responsive>
+            <Table responsive striped>
               <thead>
                 <tr>
-                  <th className="hand" onClick={this.sort('id')}>
-                    ID <FontAwesomeIcon icon="sort" />
-                  </th>
                   <th className="hand" onClick={this.sort('timestamp')}>
                     Timestamp <FontAwesomeIcon icon="sort" />
                   </th>
@@ -157,11 +154,8 @@ export class BloodPressure extends React.Component<IBloodPressureProps, IBloodPr
                   <tr key={`entity-${i}`}>
                     <td>
                       <Button tag={Link} to={`${match.url}/${bloodPressure.id}`} color="link" size="sm">
-                        {bloodPressure.id}
+                        <TextFormat type="date" value={bloodPressure.timestamp} format={APP_DATE_FORMAT} />
                       </Button>
-                    </td>
-                    <td>
-                      <TextFormat type="date" value={bloodPressure.timestamp} format={APP_DATE_FORMAT} />
                     </td>
                     <td>{bloodPressure.systolic}</td>
                     <td>{bloodPressure.diastolic}</td>
