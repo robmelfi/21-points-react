@@ -170,6 +170,11 @@ Generic styles
   white-space: pre-wrap;
 }
 
+.alert-login {
+  color: #007bff;
+  text-decoration: none !important;
+}
+
 /* padding helpers */
 
 @mixin pad($size, $side) {
