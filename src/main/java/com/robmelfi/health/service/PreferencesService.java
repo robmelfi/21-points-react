@@ -2,9 +2,12 @@ package com.robmelfi.health.service;
 
 import com.robmelfi.health.domain.Preferences;
 import com.robmelfi.health.repository.PreferencesRepository;
+import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.search.PreferencesSearchRepository;
+import com.robmelfi.health.security.AuthoritiesConstants;
 import com.robmelfi.health.security.SecurityUtils;
 import com.robmelfi.health.service.dto.PreferencesDTO;
+import com.robmelfi.health.domain.User;
 import com.robmelfi.health.service.mapper.PreferencesMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -35,10 +39,13 @@ public class PreferencesService {
 
     private final PreferencesSearchRepository preferencesSearchRepository;
 
-    public PreferencesService(PreferencesRepository preferencesRepository, PreferencesMapper preferencesMapper, PreferencesSearchRepository preferencesSearchRepository) {
+    private final UserRepository userRepository;
+
+    public PreferencesService(PreferencesRepository preferencesRepository, PreferencesMapper preferencesMapper, PreferencesSearchRepository preferencesSearchRepository, UserRepository userRepository) {
         this.preferencesRepository = preferencesRepository;
         this.preferencesMapper = preferencesMapper;
         this.preferencesSearchRepository = preferencesSearchRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -51,6 +58,8 @@ public class PreferencesService {
         log.debug("Request to save Preferences : {}", preferencesDTO);
 
         Preferences preferences = preferencesMapper.toEntity(preferencesDTO);
+        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElse(null)).orElse(null);
+        preferences.setUser(user);
         preferences = preferencesRepository.save(preferences);
         PreferencesDTO result = preferencesMapper.toDto(preferences);
         preferencesSearchRepository.save(preferences);
@@ -65,9 +74,19 @@ public class PreferencesService {
     @Transactional(readOnly = true)
     public List<PreferencesDTO> findAll() {
         log.debug("Request to get all Preferences");
-        return preferencesRepository.findAll().stream()
-            .map(preferencesMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
+        List<PreferencesDTO> preferencesDTO = new ArrayList<>();
+        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            preferencesDTO = preferencesRepository.findAll().stream()
+                .map(preferencesMapper::toDto)
+                .collect(Collectors.toCollection(LinkedList::new));
+        } else {
+            PreferencesDTO userPreferencesDTO = getUserPreferences();
+            // don't return default value of 10 points in this method
+            if (userPreferencesDTO.getId() != null) {
+                preferencesDTO.add(userPreferencesDTO);
+            }
+        }
+        return preferencesDTO;
     }
 
 
