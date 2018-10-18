@@ -29,6 +29,8 @@
       "protractor"
     ],
     "jhiPrefix": "jhi",
-    "enableTranslation": false
+    "enableTranslation": false,
+    "herokuAppName": "twentyone-points-react",
+    "herokuDeployType": "git"
   }
 }

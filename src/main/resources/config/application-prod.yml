@@ -54,10 +54,16 @@ spring:
     liquibase:
         contexts: prod
     mail:
-        host: localhost
-        port: 25
-        username:
-        password:
+        host: smtp.gmail.com
+        port: 587
+        username: ${GMAIL_USER}
+        password: ${GMAIL_PASSWORD}
+        protocol: smtp
+        tls: true
+        properties.mail.smtp:
+            auth: true
+            starttls.enable: true
+            ssl.trust: smtp.gmail.com
     thymeleaf:
         cache: true
 
@@ -115,8 +121,8 @@ jhipster:
                 token-validity-in-seconds: 86400
                 token-validity-in-seconds-for-remember-me: 2592000
     mail: # specific JHipster mail property, for standard properties see MailProperties
-        from: TwentyOnePointsReact@localhost
-        base-url: http://my-server-url-to-change # Modify according to your server's URL
+        from: 21points.react@gmail.com
+        base-url: https://twentyone-points-react.herokuapp.com
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
         jmx:
             enabled: true
