@@ -2,14 +2,25 @@
 @import 'bootstrap-variables';
 // Import Bootstrap source files from node_modules
 @import 'node_modules/bootstrap/scss/bootstrap';
+
 body {
-  background: #fafafa;
-  margin: 0;
+  font-size: 0.9rem;
+}
+
+body,
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 300;
 }
 
 a {
-  color: #533f03;
-  font-weight: bold;
+  //color: #533f03;
+  //font-weight: bold;
+  color: $primary-color;
+  text-decoration: none;
+  background-color: transparent;
 }
 
 * {
@@ -22,6 +33,10 @@ a {
   }
 }
 
+strong {
+  font-weight: bold;
+}
+
 .app-container {
   box-sizing: border-box;
   .view-container {
@@ -31,7 +46,7 @@ a {
     overflow-x: hidden;
     padding: 1rem;
     .card {
-      padding: 1rem;
+      //padding: 1rem;
     }
     .view-routes {
       height: 100%;
@@ -41,6 +56,13 @@ a {
     }
   }
 }
+
+.jh-card {
+  padding: 1.5%;
+  margin-top: 35px;
+  border: none;
+}
+
 
 .fullscreen {
   position: fixed;
@@ -83,6 +105,26 @@ Custom button styles
   }
 }
 
+.btn {
+  font-size: 0.9rem;
+}
+
+.btn-sm {
+  font-size: 0.7875rem;
+}
+
+.btn-primary {
+  background-color: $primary-color;
+}
+
+.btn-info {
+  background-color: #03a9f4;
+}
+
+.btn-link {
+  color: $primary-color
+}
+
 /* ==========================================================================
 Generic styles
 ========================================================================== */
@@ -95,7 +137,7 @@ Generic styles
 /* other generic styles */
 
 .title {
-  font-size: 1.25em;
+  font-size: 1.125em;
   margin: 1px 10px 1px 10px;
 }
 

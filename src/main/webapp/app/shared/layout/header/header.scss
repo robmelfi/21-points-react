@@ -1,3 +1,5 @@
+@import '../../../bootstrap-variables';
+
 $header-color: #fff;
 $header-color-secondary: #bbb;
 $header-color-hover: darken($header-color, 20%);
@@ -31,6 +33,7 @@ Developement Ribbon
     text-decoration: none;
     text-shadow: 0 0 5px #444;
     pointer-events: none;
+    font-size: 0.9rem;
   }
 }
 
@@ -38,7 +41,7 @@ Developement Ribbon
 Navbar styles
 ========================================================================== */
 .jh-navbar {
-  background-color: #353d47;
+  background-color: $primary-color;
   padding: 0.2em 1em;
   .profile-image {
     margin: -10px 0px;
@@ -47,9 +50,10 @@ Navbar styles
     border-radius: 50%;
   }
   .dropdown-item.active,
+  .dropdown-item.active:active,
   .dropdown-item.active:focus,
   .dropdown-item.active:hover {
-    background-color: #353d47;
+    background-color: $primary-color;
   }
   .dropdown-toggle::after {
     margin-left: 0.15em;
@@ -78,16 +82,17 @@ Navbar styles
 .navbar-version {
   font-size: 10px;
   color: $header-color-secondary;
-  padding: 0 0 0 10px;
+  padding: 0 0 0 5px;
 }
 
 .brand-logo {
+  padding: 5px 15px;
   &:hover {
     text-decoration: none;
   }
   .brand-icon {
-    height: 35px;
-    width: auto;
+    height: 45px;
+    width: 70px;
     display: inline-block;
     img {
       height: 45px;
@@ -96,12 +101,11 @@ Navbar styles
 }
 
 .brand-title {
-  font-size: 24px;
   color: $header-color;
-  &:hover {
-    color: $header-color-hover;
-    text-decoration: none;
-  }
+  display: inline-block;
+  vertical-align: middle;
+  font-weight: normal;
+  font-size: 1.125rem
 }
 
 .loading-bar {
