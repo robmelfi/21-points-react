@@ -15,6 +15,8 @@ import { IPreferences } from 'app/shared/model/preferences.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { hasAnyAuthority } from 'app/shared/auth/private-route';
+import { AUTHORITIES } from 'app/config/constants';
 
 export interface IPreferencesUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -64,7 +66,7 @@ export class PreferencesUpdate extends React.Component<IPreferencesUpdateProps, 
   };
 
   render() {
-    const { preferencesEntity, users, loading, updating } = this.props;
+    const { preferencesEntity, users, loading, updating, isAdmin } = this.props;
     const { isNew } = this.state;
 
     return (
@@ -116,19 +118,21 @@ export class PreferencesUpdate extends React.Component<IPreferencesUpdateProps, 
                     <option value="LB">LB</option>
                   </AvInput>
                 </AvGroup>
-                <AvGroup>
-                  <Label for="user.login">User</Label>
-                  <AvInput id="preferences-user" type="select" className="form-control" name="userId">
-                    <option value="" key="0" />
-                    {users
-                      ? users.map(otherEntity => (
-                          <option value={otherEntity.id} key={otherEntity.id}>
-                            {otherEntity.login}
-                          </option>
-                        ))
-                      : null}
-                  </AvInput>
-                </AvGroup>
+                {isAdmin &&
+                  <AvGroup>
+                    <Label for="user.login">User</Label>
+                    <AvInput id="preferences-user" type="select" className="form-control" name="userId">
+                      <option value="" key="0" />
+                      {users
+                        ? users.map(otherEntity => (
+                            <option value={otherEntity.id} key={otherEntity.id}>
+                              {otherEntity.login}
+                            </option>
+                          ))
+                        : null}
+                    </AvInput>
+                  </AvGroup>
+                }
                 <Button tag={Link} id="cancel-save" to="/entity/preferences" replace color="info">
                   <FontAwesomeIcon icon="arrow-left" />&nbsp;
                   <span className="d-none d-md-inline">Back</span>
@@ -150,7 +154,8 @@ const mapStateToProps = (storeState: IRootState) => ({
   users: storeState.userManagement.users,
   preferencesEntity: storeState.preferences.entity,
   loading: storeState.preferences.loading,
-  updating: storeState.preferences.updating
+  updating: storeState.preferences.updating,
+  isAdmin: hasAnyAuthority(storeState.authentication.account.authorities, [AUTHORITIES.ADMIN])
 });
 
 const mapDispatchToProps = {
