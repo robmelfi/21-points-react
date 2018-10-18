@@ -97,13 +97,13 @@ export class Preferences extends React.Component<IPreferencesProps, IPreferences
           </Col>
         </Row>
         <div className="table-responsive">
-          <Table responsive>
+          <Table responsive size="sm">
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Weekly Goal</th>
                 <th>Weight Units</th>
-                <th>{isAdmin ? "User" : null}</th>
+                <th>{isAdmin ? 'User' : null}</th>
                 <th />
               </tr>
             </thead>

@@ -131,7 +131,7 @@ export class Weigth extends React.Component<IWeigthProps, IWeigthState> {
             threshold={0}
             initialLoad={false}
           >
-            <Table responsive striped>
+            <Table responsive striped size="sm">
               <thead>
                 <tr>
                   <th className="hand" onClick={this.sort('timestamp')}>

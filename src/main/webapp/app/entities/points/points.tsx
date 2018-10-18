@@ -131,7 +131,7 @@ export class Points extends React.Component<IPointsProps, IPointsState> {
           </Col>
         </Row>
         <div className="table-responsive">
-          <Table responsive striped>
+          <Table responsive striped size="sm">
             <thead>
               <tr>
                 <th className="hand" onClick={this.sort('date')}>
