@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -20,4 +21,7 @@ public interface BloodPressureRepository extends JpaRepository<BloodPressure, Lo
 
     Page<BloodPressure> findAllByOrderByTimestampDesc(Pageable pageable);
 
+    List<BloodPressure> findAllByTimestampBetweenOrderByTimestampDesc(ZonedDateTime firstDate, ZonedDateTime secondDate);
+
+    List<BloodPressure> findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(ZonedDateTime firstDate, ZonedDateTime secondDate, String login);
 }

@@ -2,6 +2,7 @@ package com.robmelfi.health.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.robmelfi.health.service.BloodPressureService;
+import com.robmelfi.health.service.dto.BloodPressureByPeriodDTO;
 import com.robmelfi.health.web.rest.errors.BadRequestAlertException;
 import com.robmelfi.health.web.rest.util.HeaderUtil;
 import com.robmelfi.health.web.rest.util.PaginationUtil;
@@ -98,6 +99,14 @@ public class BloodPressureResource {
         Page<BloodPressureDTO> page = bloodPressureService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/blood-pressures");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/bp-by-days/{days}")
+    @Timed
+    public ResponseEntity<BloodPressureByPeriodDTO> getByDays(@PathVariable int days) {
+        log.debug("REST request to get BloodPressures by Days");
+        BloodPressureByPeriodDTO response = bloodPressureService.getByDays(days);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**

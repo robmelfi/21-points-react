@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -19,5 +20,9 @@ public interface WeigthRepository extends JpaRepository<Weigth, Long> {
     Page<Weigth> findByUserIsCurrentUser(Pageable pageable);
 
     Page<Weigth> findAllByOrderByTimestampDesc(Pageable pageable);
+
+    List<Weigth> findAllByTimestampBetweenOrderByTimestampDesc(ZonedDateTime firstDate, ZonedDateTime secondDate);
+
+    List<Weigth> findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(ZonedDateTime firstDate, ZonedDateTime secondDate, String login);
 
 }

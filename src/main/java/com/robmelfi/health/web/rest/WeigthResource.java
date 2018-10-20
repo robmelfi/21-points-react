@@ -2,6 +2,7 @@ package com.robmelfi.health.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.robmelfi.health.service.WeigthService;
+import com.robmelfi.health.service.dto.WeigthByPeriodDTO;
 import com.robmelfi.health.web.rest.errors.BadRequestAlertException;
 import com.robmelfi.health.web.rest.util.HeaderUtil;
 import com.robmelfi.health.web.rest.util.PaginationUtil;
@@ -100,6 +101,16 @@ public class WeigthResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    /**
+     * GET  /weight-by-days : get all the weigh-ins for last x days.
+     */
+    @GetMapping("/weight-by-days/{days}")
+    @Timed
+    public ResponseEntity<WeigthByPeriodDTO> getByDays(@PathVariable int days) {
+        log.debug("REST request to get Weight by Days");
+        WeigthByPeriodDTO response = weigthService.getByDays(days);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     /**
      * GET  /weigths/:id : get the "id" weigth.
      *

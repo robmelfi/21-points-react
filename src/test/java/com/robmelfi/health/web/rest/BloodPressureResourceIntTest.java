@@ -5,6 +5,7 @@ import com.robmelfi.health.TwentyOnePointsReactApp;
 import com.robmelfi.health.domain.BloodPressure;
 import com.robmelfi.health.domain.User;
 import com.robmelfi.health.repository.BloodPressureRepository;
+import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.search.BloodPressureSearchRepository;
 import com.robmelfi.health.service.BloodPressureService;
 import com.robmelfi.health.service.dto.BloodPressureDTO;
@@ -42,10 +43,12 @@ import static com.robmelfi.health.web.rest.TestUtil.createFormattingConversionSe
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -101,6 +104,9 @@ public class BloodPressureResourceIntTest {
     private MockMvc restBloodPressureMockMvc;
 
     private BloodPressure bloodPressure;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Before
     public void setup() {
@@ -410,6 +416,57 @@ public class BloodPressureResourceIntTest {
         assertThat(bloodPressure1).isNotEqualTo(bloodPressure2);
         bloodPressure1.setId(null);
         assertThat(bloodPressure1).isNotEqualTo(bloodPressure2);
+    }
+
+    private void createBloodPressureByMonth(ZonedDateTime firstDate, ZonedDateTime firstDayOfLastMonth) {
+        User user = userRepository.findOneByLogin("user").get();
+
+        bloodPressure = new BloodPressure(firstDate, 120, 80, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDate.plusDays(10), 125, 75, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDate.plusDays(20), 100, 69, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+
+        // last month
+        bloodPressure = new BloodPressure(firstDayOfLastMonth, 130, 90, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(11), 135, 85, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressure = new BloodPressure(firstDayOfLastMonth.plusDays(23), 130, 75, user);
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+    }
+
+    @Test
+    @Transactional
+    public void getBloodPressureForLast30Days() throws Exception {
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime twentyNineDaysAgo = now.minusDays(29);
+        ZonedDateTime firstDayOfLastMonth = now.withDayOfMonth(1).minusMonths(1);
+        createBloodPressureByMonth(twentyNineDaysAgo, firstDayOfLastMonth);
+
+        // create security-aware mockMvc
+        restBloodPressureMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get all the blood pressure readings
+        restBloodPressureMockMvc.perform(get("/api/blood-pressures")
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(6)));
+
+        // Get the blood pressure readings for the last 30 days
+        restBloodPressureMockMvc.perform(get("/api/bp-by-days/{days}", 30)
+            .with(user("user").roles("USER")))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.period").value("Last 30 Days"))
+            .andExpect(jsonPath("$.readings.[*].systolic").value(hasItem(120)))
+            .andExpect(jsonPath("$.readings.[*].diastolic").value(hasItem(69)));
     }
 
     @Test
