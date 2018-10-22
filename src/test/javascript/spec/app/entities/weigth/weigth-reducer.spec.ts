@@ -17,7 +17,7 @@ import reducer, {
 } from 'app/entities/weigth/weigth.reducer';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import { IWeigth, defaultValue } from 'app/shared/model/weigth.model';
-import {defaultValue as defaultWChart} from "app/shared/model/weigth-chart";
+import { defaultValue as defaultWChart } from 'app/shared/model/weigth-chart';
 
 // tslint:disable no-invalid-template-strings
 describe('Entities reducer tests', () => {

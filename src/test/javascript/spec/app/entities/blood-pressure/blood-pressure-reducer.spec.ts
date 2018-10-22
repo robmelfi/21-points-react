@@ -17,7 +17,7 @@ import reducer, {
 } from 'app/entities/blood-pressure/blood-pressure.reducer';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import { IBloodPressure, defaultValue } from 'app/shared/model/blood-pressure.model';
-import { defaultValue as defaultBpChart } from "app/shared/model/blood-pressure-chart";
+import { defaultValue as defaultBpChart } from 'app/shared/model/blood-pressure-chart';
 
 // tslint:disable no-invalid-template-strings
 describe('Entities reducer tests', () => {
