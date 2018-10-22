@@ -13,7 +13,7 @@ import { cleanEntity } from 'app/shared/util/entity-utils';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 
 import { IBloodPressure, defaultValue } from 'app/shared/model/blood-pressure.model';
-import { IBloodPressureChart, defaultValue as defaultBpChart } from 'app/shared/model/blood-pressure-chart';
+import { defaultValue as defaultBpChart } from 'app/shared/model/blood-pressure-chart';
 
 import moment from 'moment';
 

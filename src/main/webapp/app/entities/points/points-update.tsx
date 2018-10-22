@@ -113,7 +113,7 @@ export class PointsUpdate extends React.Component<IPointsUpdateProps, IPointsUpd
                 </AvGroup>
                 <AvGroup check>
                   <AvInput id="points-meals" type="checkbox" name="meals" />
-                  <Label check for="meals"> Meaks</Label>
+                  <Label check for="meals"> Meals</Label>
                 </AvGroup>
                 <AvGroup check>
                   <AvInput id="points-alcohol" type="checkbox" name="alcohol" />
