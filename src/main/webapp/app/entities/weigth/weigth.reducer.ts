@@ -13,11 +13,15 @@ import { cleanEntity } from 'app/shared/util/entity-utils';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 
 import { IWeigth, defaultValue } from 'app/shared/model/weigth.model';
+import { defaultValue as defaultWChart } from 'app/shared/model/weigth-chart';
+
+import moment from 'moment';
 
 export const ACTION_TYPES = {
   SEARCH_WEIGTHS: 'weigth/SEARCH_WEIGTHS',
   FETCH_WEIGTH_LIST: 'weigth/FETCH_WEIGTH_LIST',
   FETCH_WEIGTH: 'weigth/FETCH_WEIGTH',
+  FETCH_WEIGTH_LAST_30_DAYS: 'weigth/FETCH_WEIGTH_LAST_30_DAYS',
   CREATE_WEIGTH: 'weigth/CREATE_WEIGTH',
   UPDATE_WEIGTH: 'weigth/UPDATE_WEIGTH',
   DELETE_WEIGTH: 'weigth/DELETE_WEIGTH',
@@ -32,7 +36,8 @@ const initialState = {
   links: { next: 0 },
   updating: false,
   totalItems: 0,
-  updateSuccess: false
+  updateSuccess: false,
+  wChart: defaultWChart
 };
 
 export type WeigthState = Readonly<typeof initialState>;
@@ -44,6 +49,7 @@ export default (state: WeigthState = initialState, action): WeigthState => {
     case REQUEST(ACTION_TYPES.SEARCH_WEIGTHS):
     case REQUEST(ACTION_TYPES.FETCH_WEIGTH_LIST):
     case REQUEST(ACTION_TYPES.FETCH_WEIGTH):
+    case REQUEST(ACTION_TYPES.FETCH_WEIGTH_LAST_30_DAYS):
       return {
         ...state,
         errorMessage: null,
@@ -108,6 +114,12 @@ export default (state: WeigthState = initialState, action): WeigthState => {
         updateSuccess: true,
         entity: {}
       };
+    case SUCCESS(ACTION_TYPES.FETCH_WEIGTH_LAST_30_DAYS):
+      return {
+        ...state,
+        loading: false,
+        wChart: processWeigthReading(action.payload.data)
+      };
     case ACTION_TYPES.RESET:
       return {
         ...initialState
@@ -115,6 +127,21 @@ export default (state: WeigthState = initialState, action): WeigthState => {
     default:
       return state;
   }
+};
+
+const processWeigthReading = wReading => {
+  const weigthChart = defaultWChart;
+  if (wReading.weighIns.length) {
+    weigthChart.data = [];
+    weigthChart.title = wReading.period;
+    weigthChart.yAxis.label = 'Weigth';
+    wReading.weighIns.forEach(item => {
+      const d = { timestamp: moment(item.timestamp).format('MMM DD'), w: item.weight };
+      weigthChart.data.unshift(d);
+    });
+    weigthChart.interval = 0;
+  }
+  return weigthChart;
 };
 
 const apiUrl = 'api/weigths';
@@ -140,6 +167,14 @@ export const getEntity: ICrudGetAction<IWeigth> = id => {
   return {
     type: ACTION_TYPES.FETCH_WEIGTH,
     payload: axios.get<IWeigth>(requestUrl)
+  };
+};
+
+export const getEntitiesLast30Days = () => {
+  const requestUrl = `api/weight-by-days/30`;
+  return {
+    type: ACTION_TYPES.FETCH_WEIGTH_LAST_30_DAYS,
+    payload: axios.get(requestUrl)
   };
 };
 

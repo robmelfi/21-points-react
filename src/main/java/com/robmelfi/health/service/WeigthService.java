@@ -6,6 +6,7 @@ import com.robmelfi.health.repository.WeigthRepository;
 import com.robmelfi.health.repository.search.WeigthSearchRepository;
 import com.robmelfi.health.security.AuthoritiesConstants;
 import com.robmelfi.health.security.SecurityUtils;
+import com.robmelfi.health.service.dto.WeigthByPeriodDTO;
 import com.robmelfi.health.service.dto.WeigthDTO;
 import com.robmelfi.health.service.mapper.WeigthMapper;
 import org.slf4j.Logger;
@@ -16,6 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -80,6 +84,15 @@ public class WeigthService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public WeigthByPeriodDTO getByDays(int days) {
+        ZonedDateTime rightNow = ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime daysAgo = rightNow.minusDays(days);
+
+        List<Weigth> weighIns = weigthRepository.findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(
+            daysAgo, rightNow, SecurityUtils.getCurrentUserLogin().orElse(null));
+        return new WeigthByPeriodDTO("Last " + days + " Days", weighIns);
+    }
 
     /**
      * Get one weigth by id.

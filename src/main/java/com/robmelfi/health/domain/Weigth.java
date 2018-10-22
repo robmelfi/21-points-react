@@ -40,6 +40,14 @@ public class Weigth implements Serializable {
     @JsonIgnoreProperties("")
     private User user;
 
+    public Weigth() {}
+
+    public Weigth(ZonedDateTime timestamp, Double weight, User user) {
+        this.timestamp = timestamp;
+        this.weight = weight;
+        this.user = user;
+    }
+
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;

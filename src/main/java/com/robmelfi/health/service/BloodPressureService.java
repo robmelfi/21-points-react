@@ -6,6 +6,7 @@ import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.search.BloodPressureSearchRepository;
 import com.robmelfi.health.security.AuthoritiesConstants;
 import com.robmelfi.health.security.SecurityUtils;
+import com.robmelfi.health.service.dto.BloodPressureByPeriodDTO;
 import com.robmelfi.health.service.dto.BloodPressureDTO;
 import com.robmelfi.health.service.mapper.BloodPressureMapper;
 import org.slf4j.Logger;
@@ -16,6 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -78,6 +82,17 @@ public class BloodPressureService {
         } else {
             return bloodPressureRepository.findByUserIsCurrentUser(pageable).map(bloodPressureMapper::toDto);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public BloodPressureByPeriodDTO getByDays(int days) {
+        ZonedDateTime rightNow = ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime daysAgo = rightNow.minusDays(days);
+
+        List<BloodPressure> readings =
+            bloodPressureRepository.findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(
+                daysAgo, rightNow, SecurityUtils.getCurrentUserLogin().orElse(null));
+        return new BloodPressureByPeriodDTO("Last " + days + " Days", readings);
     }
 
 

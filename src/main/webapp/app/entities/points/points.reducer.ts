@@ -5,7 +5,7 @@ import { cleanEntity } from 'app/shared/util/entity-utils';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 
 import { IPoints, defaultValue } from 'app/shared/model/points.model';
-import { IPointsThisWeek } from 'app/shared/model/points-this-week.model';
+import { IPointsThisWeek, defaultValue as defaultPointThisWeek } from 'app/shared/model/points-this-week.model';
 
 export const ACTION_TYPES = {
   SEARCH_POINTS: 'points/SEARCH_POINTS',
@@ -26,7 +26,7 @@ const initialState = {
   updating: false,
   totalItems: 0,
   updateSuccess: false,
-  pointsThisWeek: [] as ReadonlyArray<IPointsThisWeek>
+  pointsThisWeek: defaultPointThisWeek
 };
 
 export type PointsState = Readonly<typeof initialState>;

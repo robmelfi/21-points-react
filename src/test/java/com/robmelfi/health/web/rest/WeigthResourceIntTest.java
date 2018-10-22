@@ -4,6 +4,7 @@ import com.robmelfi.health.TwentyOnePointsReactApp;
 
 import com.robmelfi.health.domain.Weigth;
 import com.robmelfi.health.domain.User;
+import com.robmelfi.health.repository.UserRepository;
 import com.robmelfi.health.repository.WeigthRepository;
 import com.robmelfi.health.repository.search.WeigthSearchRepository;
 import com.robmelfi.health.service.WeigthService;
@@ -15,6 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
@@ -42,10 +45,12 @@ import static com.robmelfi.health.web.rest.TestUtil.createFormattingConversionSe
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -56,6 +61,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TwentyOnePointsReactApp.class)
 public class WeigthResourceIntTest {
+    private final Logger log = LoggerFactory.getLogger(WeigthResourceIntTest.class);
 
     private static final ZonedDateTime DEFAULT_TIMESTAMP = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_TIMESTAMP = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
@@ -74,6 +80,9 @@ public class WeigthResourceIntTest {
 
     @Autowired
     private WebApplicationContext context;
+
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * This repository is mocked in the com.robmelfi.health.repository.search test package.
@@ -381,6 +390,52 @@ public class WeigthResourceIntTest {
         assertThat(weigth1).isNotEqualTo(weigth2);
         weigth1.setId(null);
         assertThat(weigth1).isNotEqualTo(weigth2);
+    }
+
+    private void createByMonth(ZonedDateTime firstDate, ZonedDateTime firstDayOfLastMonth) {
+        log.debug("firstDate: {}, firstOfLastMonth: {}", firstDate.toString(), firstDayOfLastMonth.toString());
+        User user = userRepository.findOneByLogin("user").get();
+
+        weigthRepository.saveAndFlush(new Weigth(firstDate, 205D, user));
+        weigthRepository.saveAndFlush(new Weigth(firstDate.plusDays(10), 200D, user));
+        weigthRepository.saveAndFlush(new Weigth(firstDate.plusDays(20), 195D, user));
+
+        // last month
+        weigthRepository.saveAndFlush(new Weigth(firstDayOfLastMonth, 208D, user));
+        weigthRepository.saveAndFlush(new Weigth(firstDayOfLastMonth.plusDays(11), 206D, user));
+        weigthRepository.saveAndFlush(new Weigth(firstDayOfLastMonth.plusDays(23), 204D, user));
+    }
+
+    @Test
+    @Transactional
+    public void getForLast30Days() throws Exception {
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime thirtyDaysAgo = now.minusDays(30);
+        ZonedDateTime firstDayOfLastMonth = now.withDayOfMonth(1).minusMonths(1);
+        createByMonth(thirtyDaysAgo, firstDayOfLastMonth);
+
+        // create security-aware mockMvc
+        restWeigthMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get all the weighIns
+        restWeigthMockMvc.perform(get("/api/weigths")
+            .with(user("user").roles("USER")))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$", hasSize(6)));
+
+        // Get the weighIns for the last 30 days
+        restWeigthMockMvc.perform(get("/api/weight-by-days/{days}", 30)
+            .with(user("user").roles("USER")))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.period").value("Last 30 Days"))
+            .andExpect(jsonPath("$.weighIns.[*].weight").value(hasItem(200D)));
     }
 
     @Test

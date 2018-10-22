@@ -9,6 +9,8 @@ import { Row, Col, Alert, Progress, Button } from 'reactstrap';
 import { IRootState } from 'app/shared/reducers';
 import { getSession } from 'app/shared/reducers/authentication';
 import { getUserWeeklyGoal, getEntities } from 'app/entities/preferences/preferences.reducer';
+import { getEntitiesLast30Days as getBloodPressureLast30Days } from 'app/entities/blood-pressure/blood-pressure.reducer';
+import { getEntitiesLast30Days as getWeigthLast30Days } from 'app/entities/weigth/weigth.reducer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PointsHome from 'app/entities/points/points-home';
 import BloodPressureHome from 'app/entities/blood-pressure/blood-pressure-home';
@@ -22,21 +24,33 @@ export class Home extends React.Component<IHomeProp> {
     if (this.props.isAuthenticated) {
       this.getUserWeeklyGoal();
       this.props.getEntities();
+      this.props.getBloodPressureLast30Days();
+      this.props.getWeigthLast30Days();
     }
   }
 
   componentDidUpdate(prevProps) {
 
     if (this.props.isAuthenticated) {
-      if (this.props.pointsThisWeek.length === 0 ||
-        this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
-        this.props.account.login !== prevProps.account.login) {
-        this.getUserWeeklyGoal();
+
+      if (this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
+          this.props.account.login !== prevProps.account.login) {
+            this.getUserWeeklyGoal();
       }
 
-      if (this.props.preferences.length === 0 ||
-        this.props.preferences.length !== prevProps.preferences.length) {
-        this.props.getEntities();
+      if (this.props.preferences.length !== prevProps.preferences.length ||
+          this.props.account.login !== prevProps.account.login) {
+            this.props.getEntities();
+      }
+
+      if (this.props.bpChart.data.length !== prevProps.bpChart.data.length ||
+          this.props.account.login !== prevProps.account.login) {
+            this.props.getBloodPressureLast30Days();
+      }
+
+      if (this.props.weigthChart.data.length !== prevProps.weigthChart.data.length ||
+        this.props.account.login !== prevProps.account.login) {
+        this.props.getWeigthLast30Days();
       }
     }
   }
@@ -46,7 +60,8 @@ export class Home extends React.Component<IHomeProp> {
   };
 
   render() {
-    const { account, pointsThisWeek, userWeeklyGoal, preferences } = this.props;
+
+    const { account, pointsThisWeek, userWeeklyGoal, preferences, bpChart, weigthChart } = this.props;
     return (
       <Row>
         <Col md="4" className="d-none d-md-inline">
@@ -66,8 +81,8 @@ export class Home extends React.Component<IHomeProp> {
           {account && account.login ? (
             <div>
               <PointsHome pointsThisWeek={pointsThisWeek} userWeeklyGoal={userWeeklyGoal}/>
-              <BloodPressureHome/>
-              <WeigthHome/>
+              <BloodPressureHome bpChart={bpChart}/>
+              <WeigthHome weigthChart={weigthChart}/>
               {preferences.length !== 0 &&
                 <Row>
                   <Col md="11" xs="12" className="mt-2">
@@ -143,13 +158,17 @@ const mapStateToProps = storeState => ({
   isAuthenticated: storeState.authentication.isAuthenticated,
   pointsThisWeek: storeState.points.pointsThisWeek,
   userWeeklyGoal: storeState.preferences.userWeeklyGoal,
-  preferences: storeState.preferences.entities
+  preferences: storeState.preferences.entities,
+  bpChart: storeState.bloodPressure.bpChart,
+  weigthChart: storeState.weigth.wChart
 });
 
 const mapDispatchToProps = {
   getSession,
   getUserWeeklyGoal,
-  getEntities
+  getEntities,
+  getBloodPressureLast30Days,
+  getWeigthLast30Days
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

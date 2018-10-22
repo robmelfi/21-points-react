@@ -1,21 +1,37 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 import { Row, Col, Alert, Progress } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-class WeigthHome extends Component {
+import { IWeigthChart } from 'app/shared/model/weigth-chart';
 
-  state = {
-    values: false
-  };
+export interface IWeigthHomeProp {
+  weigthChart: IWeigthChart;
+}
+
+class WeigthHome extends Component<IWeigthHomeProp> {
 
   render () {
 
     let graph = <Alert color="danger">No blood pressure readings found. [TO DO: graph]</Alert>;
 
-    if (this.state.values) {
-      graph = <span>Graph</span>;
+    if (this.props.weigthChart.data.length !== 0) {
+      graph = (
+        <ResponsiveContainer width="100%" height={250}>
+          <AreaChart data={this.props.weigthChart.data}
+                     margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+            <XAxis dataKey="timestamp" interval={this.props.weigthChart.interval}/>
+            <YAxis
+              label={{ value: this.props.weigthChart.yAxis.label, angle: -90, position: 'insideLeft' }}
+              type="number" domain={['dataMin-20', 'dataMax+20']} />
+            <CartesianGrid strokeDasharray="5 5"/>
+            <Tooltip />
+            <Legend verticalAlign="top" height={36}/>
+            <Area name="weight" type="monotone" dataKey="w" stroke="#8884d8" fill="#FFFF00" />
+          </AreaChart>
+        </ResponsiveContainer>
+      );
     }
 
     return (
