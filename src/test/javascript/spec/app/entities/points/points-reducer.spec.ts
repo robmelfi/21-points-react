@@ -16,7 +16,7 @@ import reducer, {
 } from 'app/entities/points/points.reducer';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import { IPoints, defaultValue } from 'app/shared/model/points.model';
-import { IPointsThisWeek } from 'app/shared/model/points-this-week.model';
+import {defaultValue as defaultPointThisWeek } from 'app/shared/model/points-this-week.model';
 
 // tslint:disable no-invalid-template-strings
 describe('Entities reducer tests', () => {
@@ -36,7 +36,7 @@ describe('Entities reducer tests', () => {
     totalItems: 0,
     updating: false,
     updateSuccess: false,
-    pointsThisWeek: [] as ReadonlyArray<IPointsThisWeek>
+    pointsThisWeek: defaultPointThisWeek
   };
 
   function testInitialState(state) {
