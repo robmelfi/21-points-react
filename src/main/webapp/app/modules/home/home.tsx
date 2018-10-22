@@ -9,6 +9,7 @@ import { Row, Col, Alert, Progress, Button } from 'reactstrap';
 import { IRootState } from 'app/shared/reducers';
 import { getSession } from 'app/shared/reducers/authentication';
 import { getUserWeeklyGoal, getEntities } from 'app/entities/preferences/preferences.reducer';
+import { getEntitiesLast30Days } from 'app/entities/blood-pressure/blood-pressure.reducer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PointsHome from 'app/entities/points/points-home';
 import BloodPressureHome from 'app/entities/blood-pressure/blood-pressure-home';
@@ -22,11 +23,11 @@ export class Home extends React.Component<IHomeProp> {
     if (this.props.isAuthenticated) {
       this.getUserWeeklyGoal();
       this.props.getEntities();
+      this.props.getEntitiesLast30Days();
     }
   }
 
   componentDidUpdate(prevProps) {
-
     if (this.props.isAuthenticated) {
       if (this.props.pointsThisWeek.length === 0 ||
         this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
@@ -38,6 +39,13 @@ export class Home extends React.Component<IHomeProp> {
         this.props.preferences.length !== prevProps.preferences.length) {
         this.props.getEntities();
       }
+
+      if (this.props.bpChart !== null) {
+        if (this.props.bpChart.data.length === 0 ||
+          this.props.bpChart.data.length !== prevProps.bpChart.data.length) {
+            this.props.getEntitiesLast30Days();
+        }
+      }
     }
   }
 
@@ -46,7 +54,25 @@ export class Home extends React.Component<IHomeProp> {
   };
 
   render() {
-    const { account, pointsThisWeek, userWeeklyGoal, preferences } = this.props;
+
+    /*
+    const data = [
+      { timestamp: moment('2018-10-19T03:05:00+02:00').format('MMM DD'), d: 90, s: 100 },
+      { timestamp: moment('2018-10-20T03:05:00+02:00').format('MMM DD'), d: 95, s: 105 },
+      { timestamp: moment('2018-10-21T03:05:00+02:00').format('MMM DD'), d: 80, s: 90 }
+    ];
+
+    const bpChart = {
+      title: 'Last 30 Days',
+      yAxis: {
+        label: 'Blood Pressure'
+      },
+      data: data,
+      interval: 0
+    };
+    */
+
+    const { account, pointsThisWeek, userWeeklyGoal, preferences, bpChart } = this.props;
     return (
       <Row>
         <Col md="4" className="d-none d-md-inline">
@@ -66,7 +92,7 @@ export class Home extends React.Component<IHomeProp> {
           {account && account.login ? (
             <div>
               <PointsHome pointsThisWeek={pointsThisWeek} userWeeklyGoal={userWeeklyGoal}/>
-              <BloodPressureHome/>
+              <BloodPressureHome bpChart={bpChart}/>
               <WeigthHome/>
               {preferences.length !== 0 &&
                 <Row>
@@ -143,13 +169,15 @@ const mapStateToProps = storeState => ({
   isAuthenticated: storeState.authentication.isAuthenticated,
   pointsThisWeek: storeState.points.pointsThisWeek,
   userWeeklyGoal: storeState.preferences.userWeeklyGoal,
-  preferences: storeState.preferences.entities
+  preferences: storeState.preferences.entities,
+  bpChart: storeState.bloodPressure.bpChart
 });
 
 const mapDispatchToProps = {
   getSession,
   getUserWeeklyGoal,
-  getEntities
+  getEntities,
+  getEntitiesLast30Days
 };
 
 type StateProps = ReturnType<typeof mapStateToProps>;

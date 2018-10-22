@@ -14,10 +14,13 @@ import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util'
 
 import { IBloodPressure, defaultValue } from 'app/shared/model/blood-pressure.model';
 
+import moment from 'moment';
+
 export const ACTION_TYPES = {
   SEARCH_BLOODPRESSURES: 'bloodPressure/SEARCH_BLOODPRESSURES',
   FETCH_BLOODPRESSURE_LIST: 'bloodPressure/FETCH_BLOODPRESSURE_LIST',
   FETCH_BLOODPRESSURE: 'bloodPressure/FETCH_BLOODPRESSURE',
+  FETCH_BLOODPRESSURE_LAST_30_DAYS: 'bloodPressure/FETCH_BLOODPRESSURE_LAST_30_DAYS',
   CREATE_BLOODPRESSURE: 'bloodPressure/CREATE_BLOODPRESSURE',
   UPDATE_BLOODPRESSURE: 'bloodPressure/UPDATE_BLOODPRESSURE',
   DELETE_BLOODPRESSURE: 'bloodPressure/DELETE_BLOODPRESSURE',
@@ -32,7 +35,15 @@ const initialState = {
   links: { next: 0 },
   updating: false,
   totalItems: 0,
-  updateSuccess: false
+  updateSuccess: false,
+  bpChart: {
+    title: '',
+    yAxis: {
+      label: ''
+    },
+    data: [],
+    interval: 0
+  }
 };
 
 export type BloodPressureState = Readonly<typeof initialState>;
@@ -44,6 +55,7 @@ export default (state: BloodPressureState = initialState, action): BloodPressure
     case REQUEST(ACTION_TYPES.SEARCH_BLOODPRESSURES):
     case REQUEST(ACTION_TYPES.FETCH_BLOODPRESSURE_LIST):
     case REQUEST(ACTION_TYPES.FETCH_BLOODPRESSURE):
+    case REQUEST(ACTION_TYPES.FETCH_BLOODPRESSURE_LAST_30_DAYS):
       return {
         ...state,
         errorMessage: null,
@@ -62,6 +74,7 @@ export default (state: BloodPressureState = initialState, action): BloodPressure
     case FAILURE(ACTION_TYPES.SEARCH_BLOODPRESSURES):
     case FAILURE(ACTION_TYPES.FETCH_BLOODPRESSURE_LIST):
     case FAILURE(ACTION_TYPES.FETCH_BLOODPRESSURE):
+    case FAILURE(ACTION_TYPES.FETCH_BLOODPRESSURE_LAST_30_DAYS):
     case FAILURE(ACTION_TYPES.CREATE_BLOODPRESSURE):
     case FAILURE(ACTION_TYPES.UPDATE_BLOODPRESSURE):
     case FAILURE(ACTION_TYPES.DELETE_BLOODPRESSURE):
@@ -108,6 +121,12 @@ export default (state: BloodPressureState = initialState, action): BloodPressure
         updateSuccess: true,
         entity: {}
       };
+    case SUCCESS(ACTION_TYPES.FETCH_BLOODPRESSURE_LAST_30_DAYS):
+      return {
+        ...state,
+        loading: false,
+        bpChart: processBpReading(action.payload.data)
+      };
     case ACTION_TYPES.RESET:
       return {
         ...initialState
@@ -115,6 +134,28 @@ export default (state: BloodPressureState = initialState, action): BloodPressure
     default:
       return state;
   }
+};
+
+const processBpReading = bpReading => {
+  let bpChart = null;
+  if (bpReading.readings.length) {
+    bpChart = {
+      title: '',
+      yAxis: {
+        label: ''
+      },
+      data: [],
+      interval: 0
+    };
+    bpChart.title = bpReading.period;
+    bpChart.yAxis.label = 'Blood Pressure';
+    bpReading.readings.forEach(item => {
+        const d = { timestamp: moment(item.timestamp).format('MMM DD'), d: item.diastolic, s: item.systolic };
+        bpChart.data.unshift(d);
+    });
+    bpChart.interval = 0;
+  }
+  return bpChart;
 };
 
 const apiUrl = 'api/blood-pressures';
@@ -140,6 +181,14 @@ export const getEntity: ICrudGetAction<IBloodPressure> = id => {
   return {
     type: ACTION_TYPES.FETCH_BLOODPRESSURE,
     payload: axios.get<IBloodPressure>(requestUrl)
+  };
+};
+
+export const getEntitiesLast30Days = () => {
+  const requestUrl = `api/bp-by-days/30`;
+  return {
+    type: ACTION_TYPES.FETCH_BLOODPRESSURE_LAST_30_DAYS,
+    payload: axios.get(requestUrl)
   };
 };
 
