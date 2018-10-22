@@ -15,8 +15,7 @@ class BloodPressureHome extends Component<IBloodPressureHomeProp> {
   render() {
 
     let graph = <Alert color="danger">No blood pressure readings found.</Alert>;
-
-    if (this.props.bpChart !== null && this.props.bpChart.data.length !== 0) {
+    if (this.props.bpChart.data.length !== 0) {
       graph = (
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={this.props.bpChart.data}

@@ -4,6 +4,15 @@ export interface IBloodPressureChart {
   yAxis?: {
     label?: string
   };
-  data: {timestamp: string, d: number, s: number}[];
+  data?: Array<{ timestamp: string, d: number, s: number }>;
   interval?: number;
 }
+
+export const defaultValue = {
+  title: '',
+  yAxis: {
+    label: ''
+  },
+  data: [],
+  interval: 0
+};

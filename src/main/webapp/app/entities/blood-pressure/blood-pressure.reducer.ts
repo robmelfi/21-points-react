@@ -13,6 +13,7 @@ import { cleanEntity } from 'app/shared/util/entity-utils';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 
 import { IBloodPressure, defaultValue } from 'app/shared/model/blood-pressure.model';
+import { IBloodPressureChart, defaultValue as defaultBpChart } from 'app/shared/model/blood-pressure-chart';
 
 import moment from 'moment';
 
@@ -36,14 +37,7 @@ const initialState = {
   updating: false,
   totalItems: 0,
   updateSuccess: false,
-  bpChart: {
-    title: '',
-    yAxis: {
-      label: ''
-    },
-    data: [],
-    interval: 0
-  }
+  bpChart: defaultBpChart
 };
 
 export type BloodPressureState = Readonly<typeof initialState>;
@@ -137,21 +131,14 @@ export default (state: BloodPressureState = initialState, action): BloodPressure
 };
 
 const processBpReading = bpReading => {
-  let bpChart = null;
+  const bpChart = defaultBpChart;
   if (bpReading.readings.length) {
-    bpChart = {
-      title: '',
-      yAxis: {
-        label: ''
-      },
-      data: [],
-      interval: 0
-    };
+    bpChart.data = [];
     bpChart.title = bpReading.period;
     bpChart.yAxis.label = 'Blood Pressure';
     bpReading.readings.forEach(item => {
-        const d = { timestamp: moment(item.timestamp).format('MMM DD'), d: item.diastolic, s: item.systolic };
-        bpChart.data.unshift(d);
+      const d = { timestamp: moment(item.timestamp).format('MMM DD'), d: item.diastolic, s: item.systolic };
+      bpChart.data.unshift(d);
     });
     bpChart.interval = 0;
   }

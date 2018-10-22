@@ -28,23 +28,22 @@ export class Home extends React.Component<IHomeProp> {
   }
 
   componentDidUpdate(prevProps) {
+
     if (this.props.isAuthenticated) {
-      if (this.props.pointsThisWeek.length === 0 ||
-        this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
-        this.props.account.login !== prevProps.account.login) {
-        this.getUserWeeklyGoal();
+
+      if (this.props.pointsThisWeek.points !== prevProps.pointsThisWeek.points ||
+          this.props.account.login !== prevProps.account.login) {
+            this.getUserWeeklyGoal();
       }
 
-      if (this.props.preferences.length === 0 ||
-        this.props.preferences.length !== prevProps.preferences.length) {
-        this.props.getEntities();
+      if (this.props.preferences.length !== prevProps.preferences.length ||
+          this.props.account.login !== prevProps.account.login) {
+            this.props.getEntities();
       }
 
-      if (this.props.bpChart !== null) {
-        if (this.props.bpChart.data.length === 0 ||
-          this.props.bpChart.data.length !== prevProps.bpChart.data.length) {
+      if (this.props.bpChart.data.length !== prevProps.bpChart.data.length ||
+          this.props.account.login !== prevProps.account.login) {
             this.props.getEntitiesLast30Days();
-        }
       }
     }
   }
@@ -54,23 +53,6 @@ export class Home extends React.Component<IHomeProp> {
   };
 
   render() {
-
-    /*
-    const data = [
-      { timestamp: moment('2018-10-19T03:05:00+02:00').format('MMM DD'), d: 90, s: 100 },
-      { timestamp: moment('2018-10-20T03:05:00+02:00').format('MMM DD'), d: 95, s: 105 },
-      { timestamp: moment('2018-10-21T03:05:00+02:00').format('MMM DD'), d: 80, s: 90 }
-    ];
-
-    const bpChart = {
-      title: 'Last 30 Days',
-      yAxis: {
-        label: 'Blood Pressure'
-      },
-      data: data,
-      interval: 0
-    };
-    */
 
     const { account, pointsThisWeek, userWeeklyGoal, preferences, bpChart } = this.props;
     return (
