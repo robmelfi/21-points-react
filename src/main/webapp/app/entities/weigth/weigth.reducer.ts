@@ -170,12 +170,13 @@ export const getEntity: ICrudGetAction<IWeigth> = id => {
   };
 };
 
-export const getEntitiesLast30Days = () => {
+export const getEntitiesLast30Days = () => async dispatch => {
   const requestUrl = `api/weight-by-days/30`;
-  return {
+  const result = await dispatch({
     type: ACTION_TYPES.FETCH_WEIGTH_LAST_30_DAYS,
     payload: axios.get(requestUrl)
-  };
+  });
+  return result;
 };
 
 export const createEntity: ICrudPutAction<IWeigth> = entity => async dispatch => {

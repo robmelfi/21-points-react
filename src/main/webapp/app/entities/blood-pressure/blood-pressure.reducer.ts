@@ -171,12 +171,13 @@ export const getEntity: ICrudGetAction<IBloodPressure> = id => {
   };
 };
 
-export const getEntitiesLast30Days = () => {
+export const getEntitiesLast30Days = () => async dispatch => {
   const requestUrl = `api/bp-by-days/30`;
-  return {
+  const result = await dispatch({
     type: ACTION_TYPES.FETCH_BLOODPRESSURE_LAST_30_DAYS,
     payload: axios.get(requestUrl)
-  };
+  });
+  return result;
 };
 
 export const createEntity: ICrudPutAction<IBloodPressure> = entity => async dispatch => {
