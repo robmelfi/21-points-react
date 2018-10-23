@@ -5,6 +5,8 @@ This is the [Angular Web App](https://www.21-points.com) version.
 
 Demo of [21 Points Health v1.0.0 (React)](https://twentyone-points-react.herokuapp.com)
 
+‪Note that it takes +30 seconds to wake up in Heroku free account.
+
 This application was generated using JHipster 5.4.1, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v5.4.1](https://www.jhipster.tech/documentation-archive/v5.4.1).
 
 ## Development
