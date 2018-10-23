@@ -138,7 +138,6 @@ export class Home extends React.Component<IHomeProp> {
                   </a>
                 </li>
               </ul>
-
               <div>
                 Don't have an account yet?&nbsp;
                 <Link to="/register" className="alert-link">
