@@ -140,11 +140,7 @@ const processBpReading = bpReading => {
       const d = { timestamp: moment(item.timestamp).format('MMM DD'), d: item.diastolic, s: item.systolic };
       bpChart.data.unshift(d);
     });
-    if (bpReading.readings.length <= 10) {
-      bpChart.interval = 0;
-    } else {
-      bpChart.interval = 4;
-    }
+    bpReading.readings.length <= 10 ? bpChart.interval = 0 : bpChart.interval = 4;
   }
   return bpChart;
 };
