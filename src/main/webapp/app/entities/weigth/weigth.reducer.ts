@@ -139,7 +139,7 @@ const processWeigthReading = wReading => {
       const d = { timestamp: moment(item.timestamp).format('MMM DD'), w: item.weight };
       weigthChart.data.unshift(d);
     });
-    wReading.readings.length <= 10 ? weigthChart.interval = 0 : weigthChart.interval = 4;
+    wReading.weighIns.length <= 10 ? weigthChart.interval = 0 : weigthChart.interval = 4;
   }
   return weigthChart;
 };
