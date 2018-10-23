@@ -4,7 +4,7 @@
 
     <groupId>com.robmelfi.health</groupId>
     <artifactId>twenty-one-points-react</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>war</packaging>
     <name>Twenty One Points React</name>
 
