@@ -14,6 +14,7 @@ import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 import { AUTHORITIES } from 'app/config/constants';
 import About from 'app/modules/about/about';
+import History from 'app/modules/history/history';
 
 // tslint:disable:space-in-parens
 const Account = Loadable({
@@ -36,10 +37,11 @@ const Routes = () => (
       <ErrorBoundaryRoute path="/activate/:key?" component={Activate} />
       <ErrorBoundaryRoute path="/reset/request" component={PasswordResetInit} />
       <ErrorBoundaryRoute path="/reset/finish/:key?" component={PasswordResetFinish} />
+      <ErrorBoundaryRoute path="/about" component={About} />
       <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
       <PrivateRoute path="/account" component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
       <PrivateRoute path="/entity" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
-      <ErrorBoundaryRoute path="/about" component={About} />
+      <PrivateRoute path="/history" component={History} hasAnyAuthorities={[AUTHORITIES.USER]} />
       <ErrorBoundaryRoute path="/" component={Home} />
     </Switch>
   </div>

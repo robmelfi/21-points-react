@@ -5,7 +5,7 @@ import { NavLink as Link } from 'react-router-dom';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faStar);
 
@@ -51,6 +51,15 @@ export const About = props => (
     <NavLink tag={Link} to="/about" className="d-flex align-items-center">
       <FontAwesomeIcon icon={faStar} />
       <span>About</span>
+    </NavLink>
+  </NavItem>
+);
+
+export const History = props => (
+  <NavItem>
+    <NavLink tag={Link} to="/history" className="d-flex align-items-center">
+      <FontAwesomeIcon icon={faCalendarAlt} />
+      <span>History</span>
     </NavLink>
   </NavItem>
 );
