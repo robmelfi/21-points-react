@@ -136,6 +136,14 @@ Custom button styles
 
 .btn {
   font-size: 0.9rem;
+  border-color: #009688;
+}
+.btn:hover,
+.btn:active,
+.btn.active,
+.btn:focus,
+.btn.focus {
+  border-color: #00635a !important;
 }
 
 .btn-sm {
@@ -144,6 +152,17 @@ Custom button styles
 
 .btn-primary {
   background-color: $primary-color;
+  color: #ffffff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary.focus,
+.btn-primary:active,
+.btn-primary.active,
+.open > .dropdown-toggle.btn-primary {
+  background: #00635a !important;
+  box-shadow: none !important;
 }
 
 .btn-info {
