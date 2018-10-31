@@ -35,6 +35,7 @@ import javax.persistence.EntityManager;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -458,5 +460,42 @@ public class PointsResourceIntTest {
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.week").value(thisMonday.toString()))
             .andExpect(jsonPath("$.points").value(5));
+    }
+
+    @Test
+    @Transactional
+    public void getPointsByMonth() throws Exception {
+        LocalDate today = LocalDate.now();
+        LocalDate thisMonday = today.with(DayOfWeek.MONDAY);
+        LocalDate lastMonday = thisMonday.minusDays(7);
+        createPointsByWeek(thisMonday, lastMonday);
+
+        // create security-aware mockMvc
+        restPointsMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
+        // Get the points for last month
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
+        String startDate = fmt.format(today.withDayOfMonth(1));
+        LocalDate firstDate = thisMonday.plusDays(2);
+        LocalDate secondDate = thisMonday.plusDays(3);
+
+        // see if adding days takes you into next month
+        if (today.getMonthValue() < firstDate.getMonthValue() || today.getMonthValue() < secondDate.getMonthValue()) {
+            // if so, look for second set of dates
+            firstDate = lastMonday.plusDays(3);
+            secondDate = lastMonday.plusDays(4);
+        }
+
+        restPointsMockMvc.perform(get("/api/points-by-month/{yearWithMonth}", startDate)
+            .with(user("user").roles("USER")))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.month").value(startDate))
+            .andExpect(jsonPath("$.points.[*].date").value(hasItem(firstDate.toString())))
+            .andExpect(jsonPath("$.points.[*].date").value(hasItem(secondDate.toString())));
     }
 }

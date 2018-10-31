@@ -2,6 +2,7 @@ package com.robmelfi.health.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.robmelfi.health.service.PointsService;
+import com.robmelfi.health.service.dto.PointsPerMonthDTO;
 import com.robmelfi.health.service.dto.PointsPerWeekDTO;
 import com.robmelfi.health.web.rest.errors.BadRequestAlertException;
 import com.robmelfi.health.web.rest.util.HeaderUtil;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,6 +125,16 @@ public class PointsResource {
         log.debug("REST request to get points this week");
 
         return pointsService.getPointsThisWeek();
+    }
+
+    /**
+     * GET  /points-by-month : get all the points for a particular current month.
+     */
+    @GetMapping("/points-by-month/{yearWithMonth}")
+    @Timed
+    public ResponseEntity<PointsPerMonthDTO> getPointsByMonth(@PathVariable @DateTimeFormat(pattern="yyyy-MM") YearMonth yearWithMonth) {
+        PointsPerMonthDTO result = pointsService.getPointsByMonth(yearWithMonth);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**

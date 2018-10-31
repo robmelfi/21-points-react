@@ -8,6 +8,7 @@ import com.robmelfi.health.repository.search.PointsSearchRepository;
 import com.robmelfi.health.security.AuthoritiesConstants;
 import com.robmelfi.health.security.SecurityUtils;
 import com.robmelfi.health.service.dto.PointsDTO;
+import com.robmelfi.health.service.dto.PointsPerMonthDTO;
 import com.robmelfi.health.service.dto.PointsPerWeekDTO;
 import com.robmelfi.health.service.mapper.PointsMapper;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -124,6 +126,18 @@ public class PointsService {
 
         PointsPerWeekDTO count = new PointsPerWeekDTO(startOfWeek, numPoints);
         return count;
+    }
+
+    /**
+     *  Get all the points for a particular current month.
+     */
+    @Transactional(readOnly = true)
+    public PointsPerMonthDTO getPointsByMonth(YearMonth yearWithMonth) {
+        // Get last day of the month
+        LocalDate endOfMonth = yearWithMonth.atEndOfMonth();
+        List<Points> points = pointsRepository.findAllByDateBetweenAndUserLogin(yearWithMonth.atDay(1), endOfMonth, SecurityUtils.getCurrentUserLogin().orElse(null));
+        PointsPerMonthDTO pointsPerMonthDTO = new PointsPerMonthDTO(yearWithMonth, points);
+        return pointsPerMonthDTO;
     }
 
     /**
