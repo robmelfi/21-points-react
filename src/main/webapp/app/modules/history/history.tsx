@@ -99,9 +99,9 @@ export class History extends React.Component<IHistoryProps> {
       return(
         <div className="mb-3 d-flex justify-content-between">
           <div className="d-flex flex-column align-items-center">
-            <ButtonGroup size="sm">
+            <ButtonGroup>
               <Button color="primary" onClick={goToBack}>&#8249;</Button>
-              <Button outline color="primary" onClick={goToCurrent}>today</Button>
+              <Button outline color="secondary" onClick={goToCurrent}>today</Button>
               <Button color="primary" onClick={goToNext}>&#8250;</Button>
             </ButtonGroup>
           </div>
@@ -109,7 +109,7 @@ export class History extends React.Component<IHistoryProps> {
             {label()}
           </div>
           <div className="d-flex flex-column justify-content-end">
-            <ButtonGroup size="sm">
+            <ButtonGroup>
               <Button active={this.state.monthIsActive} color="primary" onClick={goToMonthView}>Month</Button>
               <Button active={this.state.weekIsActive} color="primary" onClick={goToWeekView}>Week</Button>
               <Button active={this.state.dayIsActive} color="primary" onClick={goToDayView}>Day</Button>
@@ -123,6 +123,7 @@ export class History extends React.Component<IHistoryProps> {
       <Container className="calendar">
         <BigCalendar
           events={events}
+          slots={60}
           defaultDate={new Date()}
           showMultiDayTimes
           localizer={localizer}
