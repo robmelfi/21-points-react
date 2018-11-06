@@ -36,7 +36,8 @@ describe('Entities reducer tests', () => {
     totalItems: 0,
     updating: false,
     updateSuccess: false,
-    pointsThisWeek: defaultPointThisWeek
+    pointsThisWeek: defaultPointThisWeek,
+    pointsByMonths: []
   };
 
   function testInitialState(state) {
