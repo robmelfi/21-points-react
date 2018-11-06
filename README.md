@@ -3,6 +3,8 @@ This application refers to the book [“The JHipster Mini-Book by Matt Raible”
 
 This is the [Angular Web App](https://www.21-points.com) version.
 
+Demo of dev [master](https://twentyone-points-react-dev.herokuapp.com)
+
 Demo of [21 Points Health v1.0.0 (React)](https://twentyone-points-react.herokuapp.com)
 
 ‪Note that it takes +30 seconds to wake up in Heroku free account.
