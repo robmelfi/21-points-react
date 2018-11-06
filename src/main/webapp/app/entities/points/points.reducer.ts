@@ -7,11 +7,27 @@ import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util'
 import { IPoints, defaultValue } from 'app/shared/model/points.model';
 import { IPointsThisWeek, defaultValue as defaultPointThisWeek } from 'app/shared/model/points-this-week.model';
 
+import {
+  startOfDay,
+  endOfDay,
+  subDays,
+  addDays,
+  endOfMonth,
+  isSameDay,
+  isSameMonth,
+  addHours,
+  addMinutes,
+  format,
+  startOfMonth,
+  getDaysInMonth
+} from 'date-fns';
+
 export const ACTION_TYPES = {
   SEARCH_POINTS: 'points/SEARCH_POINTS',
   FETCH_POINTS_LIST: 'points/FETCH_POINTS_LIST',
   FETCH_POINTS: 'points/FETCH_POINTS',
   FETCH_POINTS_THIS_WEEK: 'points/FETCH_POINTS_THIS_WEEK',
+  FETCH_POINTS_BY_MONTHS: 'points/FETCH_POINTS_BY_MONTHS',
   CREATE_POINTS: 'points/CREATE_POINTS',
   UPDATE_POINTS: 'points/UPDATE_POINTS',
   DELETE_POINTS: 'points/DELETE_POINTS',
@@ -26,7 +42,8 @@ const initialState = {
   updating: false,
   totalItems: 0,
   updateSuccess: false,
-  pointsThisWeek: defaultPointThisWeek
+  pointsThisWeek: defaultPointThisWeek,
+  pointsByMonths: []
 };
 
 export type PointsState = Readonly<typeof initialState>;
@@ -39,6 +56,7 @@ export default (state: PointsState = initialState, action): PointsState => {
     case REQUEST(ACTION_TYPES.FETCH_POINTS_LIST):
     case REQUEST(ACTION_TYPES.FETCH_POINTS):
     case REQUEST(ACTION_TYPES.FETCH_POINTS_THIS_WEEK):
+    case REQUEST(ACTION_TYPES.FETCH_POINTS_BY_MONTHS):
       return {
         ...state,
         errorMessage: null,
@@ -58,6 +76,7 @@ export default (state: PointsState = initialState, action): PointsState => {
     case FAILURE(ACTION_TYPES.FETCH_POINTS_LIST):
     case FAILURE(ACTION_TYPES.FETCH_POINTS):
     case FAILURE(ACTION_TYPES.FETCH_POINTS_THIS_WEEK):
+    case FAILURE(ACTION_TYPES.FETCH_POINTS_BY_MONTHS):
     case FAILURE(ACTION_TYPES.CREATE_POINTS):
     case FAILURE(ACTION_TYPES.UPDATE_POINTS):
     case FAILURE(ACTION_TYPES.DELETE_POINTS):
@@ -93,6 +112,12 @@ export default (state: PointsState = initialState, action): PointsState => {
         loading: false,
         pointsThisWeek: action.payload.data
       };
+    case SUCCESS(ACTION_TYPES.FETCH_POINTS_BY_MONTHS):
+      return {
+        ...state,
+        loading: false,
+        pointsByMonths: processPointsByMonths(action.payload.data)
+      };
     case SUCCESS(ACTION_TYPES.CREATE_POINTS):
     case SUCCESS(ACTION_TYPES.UPDATE_POINTS):
       return {
@@ -115,6 +140,20 @@ export default (state: PointsState = initialState, action): PointsState => {
     default:
       return state;
   }
+};
+
+const processPointsByMonths = data => {
+  const result = [];
+  data.points.forEach(item => {
+    const value = item.excercise + item.meals + item.alcohol;
+    result.push({
+      id: item.id,
+      title: value + ' Points',
+      start: startOfDay(item.date),
+      end: endOfDay(item.date)
+    });
+  });
+  return result;
 };
 
 const apiUrl = 'api/points';
@@ -140,6 +179,14 @@ export const getPointsThisWeek: ICrudGetAllAction<IPointsThisWeek> = () => {
   return {
     type: ACTION_TYPES.FETCH_POINTS_THIS_WEEK,
     payload: axios.get<IPointsThisWeek>(requestUrl)
+  };
+};
+
+export const getPointsbyMonths = month => {
+  const requestUrl = `${apiUrl}-by-month/${month}`;
+  return {
+    type: ACTION_TYPES.FETCH_POINTS_BY_MONTHS,
+    payload: axios.get(requestUrl)
   };
 };
 

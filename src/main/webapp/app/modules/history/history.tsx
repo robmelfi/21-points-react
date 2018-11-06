@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { connect } from 'react-redux';
 
 import { Container, Row, Col, ButtonGroup, Button } from 'reactstrap';
 import BigCalendar from 'react-big-calendar';
@@ -7,6 +8,13 @@ import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 
 import './history.scss';
+import { IRootState } from 'app/shared/reducers';
+import { getPointsbyMonths } from 'app/entities/points/points.reducer';
+
+import {
+  endOfMonth,
+  format
+} from 'date-fns';
 
 // TODO: FIX this warning
 // import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -15,39 +23,45 @@ import './history.scss';
 // to the correct localizer.
 const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
 
-export interface IHistoryProps {
+export interface IHistoryProps extends StateProps, DispatchProps { }
+
+export interface IHistoryState {
   monthIsActive: boolean;
   weekIsActive: boolean;
   dayIsActive: boolean;
 }
 
-export class History extends React.Component<IHistoryProps> {
+export class History extends React.Component<IHistoryProps, IHistoryState> {
 
-  state: IHistoryProps = {
+  state: IHistoryState = {
     monthIsActive: false,
     weekIsActive: false,
     dayIsActive: false
   };
 
+  componentDidMount() {
+    this.getPoints(this.getMonthFromDate(new Date()));
+  }
+
+  getPoints(month) {
+    this.props.getPointsbyMonths(month);
+  }
+
+  onNavigateUpdate = month => {
+    this.getPoints(this.getMonthFromDate(month));
+  };
+
+  getMonthFromDate(date) {
+    const monthEnd = endOfMonth(date);
+    const month = format(monthEnd, 'YYYY-MM');
+    return month;
+  }
+
   render() {
 
-    const allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
+    const { pointsByMonths } = this.props;
 
-    const events = [
-      {
-        id: 0,
-        title: 'All Day Event very long title',
-        allDay: true,
-        start: new Date(2018, 9, 1),
-        end: new Date(2018, 9, 2)
-      },
-      {
-        id: 1,
-        title: 'Long Event',
-        start: new Date(2018, 9, 3),
-        end: new Date(2018, 9, 6)
-      }
-    ];
+    const customEventPropGetter = () => ({ className: 'event' });
 
     const CustomToolbar = toolbar => {
 
@@ -122,7 +136,7 @@ export class History extends React.Component<IHistoryProps> {
     return (
       <Container className="calendar">
         <BigCalendar
-          events={events}
+          events={pointsByMonths}
           slots={60}
           defaultDate={new Date()}
           showMultiDayTimes
@@ -131,10 +145,26 @@ export class History extends React.Component<IHistoryProps> {
           components={{
             toolbar: CustomToolbar
           }}
+          onNavigate={ this.onNavigateUpdate }
+          eventPropGetter={ customEventPropGetter }
         />
       </Container>
     );
   }
 }
 
-export default History;
+const mapStateToProps = ({ points }: IRootState) => ({
+  pointsByMonths: points.pointsByMonths
+});
+
+const mapDispatchToProps = {
+  getPointsbyMonths
+};
+
+type StateProps = ReturnType<typeof mapStateToProps>;
+type DispatchProps = typeof mapDispatchToProps;
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(History);
